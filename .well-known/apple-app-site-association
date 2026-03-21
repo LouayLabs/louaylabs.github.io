@@ -2,7 +2,7 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["F8D47VJYUC.com.louaylabs.MyFootball"],
+        "appIDs": ["F8D47VJYUC.LL.MyFootball"],
         "components": [
           {
             "/": "/myfootball/join/*"
