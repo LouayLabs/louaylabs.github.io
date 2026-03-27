@@ -125,7 +125,7 @@
     <div class="container">
         <div class="badge">Legal</div>
         <h1>Privacy Policy</h1>
-        <p class="effective">Effective date: 19 March 2026 &middot; Last updated: 19 March 2026</p>
+        <p class="effective">Effective date: 19 March 2026 &middot; Last updated: 27 March 2026</p>
 
         <p>MyFootball ("the App", "we", "us", "our") is operated by LouayLabs. This Privacy Policy explains what personal data we collect, why we collect it, how we use it, and your rights regarding that data.</p>
         <p>By creating an account, you acknowledge that you have read and understood this policy.</p>
@@ -158,12 +158,18 @@
             <li><strong>Statistics</strong> — aggregated from your match history (matches played, win rate, average rating, awards)</li>
             <li><strong>Friend connections</strong> — friend requests sent, received, and accepted</li>
             <li><strong>Notifications</strong> — match invites, friend requests, and match activity notifications</li>
+            <li><strong>Chat messages</strong> — messages you send in match and squad group chats are stored so other participants can view them</li>
+            <li><strong>Squad data</strong> — squads you create or join, squad membership, invite codes, and squad-level statistics</li>
+            <li><strong>Dummy profiles</strong> — if you are a match admin, you may create placeholder player profiles (display name only) to represent players who do not have an account. These are linked to your account.</li>
         </ul>
 
-        <h3>1.3 Location Data</h3>
+        <h3>1.3 Push Notification Data</h3>
+        <p>If you grant notification permissions, we collect your <strong>Apple Push Notification service (APNs) device token</strong>. This token is used solely to deliver push notifications about match activity, friend requests, chat messages, and other in-app events. You can disable push notifications at any time in your device's Settings. We do not use your device token for advertising or tracking.</p>
+
+        <h3>1.4 Location Data</h3>
         <p>When you search for match venues, the App uses Apple MapKit to search for places. Search queries are sent to Apple's mapping servers. <strong>We do not request access to your device's GPS location.</strong> The venue addresses you save are stored in our database so you can reuse them for future matches.</p>
 
-        <h3>1.4 Data We Do NOT Collect</h3>
+        <h3>1.5 Data We Do NOT Collect</h3>
         <div class="card">
             <ul style="margin-bottom: 0;">
                 <li>❌ Device GPS/location tracking</li>
@@ -181,8 +187,8 @@
         <p>We use your data solely to provide the App's functionality:</p>
         <ul>
             <li><strong>Account management</strong> — creating and authenticating your account</li>
-            <li><strong>Core features</strong> — organising matches, managing teams, inviting friends, generating post-match statistics</li>
-            <li><strong>Communication</strong> — sending verification emails and in-app notifications about match activity</li>
+            <li><strong>Core features</strong> — organising matches, managing teams, inviting friends, generating post-match statistics, squad management, and group chat</li>
+            <li><strong>Communication</strong> — sending verification emails, in-app notifications, and push notifications about match activity, chat messages, friend requests, and squad events</li>
             <li><strong>Age verification</strong> — ensuring users meet the minimum age requirement of 13 years</li>
         </ul>
         <p>We do <strong>not</strong> use your data for advertising, profiling, automated decision-making, or selling to third parties.</p>
@@ -193,6 +199,8 @@
             <li>Your <strong>display name</strong>, <strong>username</strong>, and <strong>bio</strong></li>
             <li>Your <strong>friendship status</strong> relative to them</li>
             <li>Within shared matches: your <strong>team assignment</strong>, <strong>position</strong>, <strong>ratings</strong>, and <strong>awards</strong></li>
+            <li>Within shared matches and squads: your <strong>chat messages</strong> sent to group chats</li>
+            <li>Within shared squads: your <strong>squad membership</strong> and <strong>squad statistics</strong></li>
         </ul>
         <p>Other users <strong>cannot</strong> see your email address, password, date of birth, sex, first/last name, or saved locations.</p>
 
@@ -212,6 +220,7 @@
             </thead>
             <tbody>
                 <tr><td>Supabase</td><td>Authentication, database, backend</td><td>All app data (encrypted in transit and at rest)</td></tr>
+                <tr><td>Apple Push Notification service (APNs)</td><td>Delivering push notifications to your device</td><td>Device token (not linked to your Apple ID)</td></tr>
                 <tr><td>Apple MapKit</td><td>Venue search when setting match locations</td><td>Search queries only (no personal data)</td></tr>
             </tbody>
         </table>
@@ -220,7 +229,7 @@
         <h2>6. Data Retention</h2>
         <ul>
             <li><strong>Active account</strong> — your data is retained for as long as your account exists</li>
-            <li><strong>Account deletion</strong> — when you delete your account, all your data is permanently removed, including: your profile, match participation records, friendships, saved locations, match history, statistics, notifications, and reports. This is irreversible.</li>
+            <li><strong>Account deletion</strong> — when you delete your account, all your data is permanently removed, including: your profile, match participation records, friendships, saved locations, match history, statistics, notifications, reports, chat messages, squad memberships, dummy profiles you created, and push notification tokens. This is irreversible.</li>
         </ul>
 
         <h2>7. Your Rights</h2>
