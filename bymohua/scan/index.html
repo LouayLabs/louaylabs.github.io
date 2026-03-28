@@ -293,6 +293,114 @@
             font-weight: 400;
         }
 
+        /* Dashboard styles */
+        #dashboardCard {
+            display: none;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+        .dashboard-header h2 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #2c2420;
+        }
+        .dashboard-count {
+            font-size: 0.72rem;
+            color: #a09890;
+            background: #f5f0eb;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+        }
+        .client-list {
+            list-style: none;
+        }
+        .client-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid #f0ebe5;
+            cursor: pointer;
+            transition: background 0.15s;
+            margin: 0 -0.5rem;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            border-radius: 8px;
+        }
+        .client-item:last-child {
+            border-bottom: none;
+        }
+        .client-item:hover {
+            background: #faf8f5;
+        }
+        .client-item-left {
+            flex: 1;
+            min-width: 0;
+        }
+        .client-item-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #2c2420;
+            margin-bottom: 0.15rem;
+        }
+        .client-item-email {
+            font-size: 0.72rem;
+            color: #b8b0a8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .client-item-right {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-shrink: 0;
+            margin-left: 0.75rem;
+        }
+        .client-item-stamps {
+            font-size: 0.78rem;
+            color: #b8956a;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .client-item-reward {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0.2rem 0.45rem;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+        .client-item-reward.has {
+            background: #f0f7f0;
+            color: #5a8a5a;
+        }
+        .client-item-reward.none {
+            background: transparent;
+            color: transparent;
+        }
+        .dashboard-empty {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #b8b0a8;
+            font-size: 0.85rem;
+        }
+        .dashboard-config {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f0ebe5;
+            font-size: 0.72rem;
+            color: #b8b0a8;
+        }
+        .dashboard-config span {
+            color: #2c2420;
+            font-weight: 500;
+        }
+
         .spinner-small {
             display: inline-block;
             width: 16px;
@@ -372,8 +480,18 @@
             </div>
 
             <div class="scan-another">
-                <a href="#" onclick="resetScan()">← Scan another client</a>
+                <a href="#" onclick="resetScan()">← Back to dashboard</a>
             </div>
+        </div>
+
+        <!-- Dashboard: all clients -->
+        <div class="card" id="dashboardCard">
+            <div class="dashboard-header">
+                <h2>All Clients</h2>
+                <span class="dashboard-count" id="dashboardCount"></span>
+            </div>
+            <ul class="client-list" id="clientList"></ul>
+            <div class="dashboard-config" id="dashboardConfig"></div>
         </div>
     </div>
 
@@ -428,11 +546,8 @@
             if (currentSerial) {
                 loadClient(currentSerial);
             } else {
-                // No serial in URL — show message
-                document.getElementById('loadingCard').style.display = 'block';
-                document.getElementById('loadingCard').innerHTML = `
-                    <p style="color: #8a8078;">No client QR scanned.<br>Scan a client's loyalty card to get started.</p>
-                `;
+                // No serial — show dashboard
+                loadDashboard();
             }
         }
 
@@ -633,10 +748,105 @@
         }
 
         // ==========================================
+        // Dashboard: list all clients
+        // ==========================================
+        async function loadDashboard() {
+            document.getElementById('loadingCard').style.display = 'block';
+            document.getElementById('clientCard').style.display = 'none';
+            document.getElementById('dashboardCard').style.display = 'none';
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/list-clients`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                    body: JSON.stringify({ admin_secret: adminSecret }),
+                });
+
+                if (res.status === 401) {
+                    sessionStorage.removeItem('bymohua_admin');
+                    document.getElementById('loadingCard').style.display = 'none';
+                    document.getElementById('authCard').style.display = 'block';
+                    showAuthError('Invalid password. Please try again.');
+                    return;
+                }
+
+                if (!res.ok) throw new Error('Failed to load clients');
+
+                const data = await res.json();
+                renderDashboard(data);
+
+            } catch (err) {
+                document.getElementById('loadingCard').innerHTML = `
+                    <p style="color: #c77e7e;">${err.message}</p>
+                `;
+            }
+        }
+
+        function renderDashboard(data) {
+            document.getElementById('loadingCard').style.display = 'none';
+            document.getElementById('dashboardCard').style.display = 'block';
+
+            document.getElementById('dashboardCount').textContent = `${data.total_clients} client${data.total_clients !== 1 ? 's' : ''}`;
+
+            const list = document.getElementById('clientList');
+
+            if (data.clients.length === 0) {
+                list.innerHTML = '<div class="dashboard-empty">No clients yet.<br>Share your join link to get started!</div>';
+            } else {
+                list.innerHTML = data.clients.map(c => {
+                    const filled = c.current_cycle_stamps;
+                    const total = c.stamps_required;
+                    const dots = '◆'.repeat(filled) + '◇'.repeat(total - filled);
+                    const rewardHtml = c.rewards_available > 0
+                        ? `<span class="client-item-reward has">${c.rewards_available} ★</span>`
+                        : `<span class="client-item-reward none">-</span>`;
+
+                    return `
+                        <li class="client-item" onclick="viewClient('${c.pass_serial}')">
+                            <div class="client-item-left">
+                                <div class="client-item-name">${escHtml(c.name)}</div>
+                                <div class="client-item-email">${escHtml(c.email || c.phone || '')}</div>
+                            </div>
+                            <div class="client-item-right">
+                                <span class="client-item-stamps">${dots}</span>
+                                ${rewardHtml}
+                            </div>
+                        </li>
+                    `;
+                }).join('');
+            }
+
+            const configEl = document.getElementById('dashboardConfig');
+            configEl.innerHTML = `
+                Reward: <span>${escHtml(data.config.reward_description)}</span> · 
+                Stamps needed: <span>${data.config.stamps_required}</span>
+            `;
+        }
+
+        function viewClient(serial) {
+            currentSerial = serial;
+            document.getElementById('dashboardCard').style.display = 'none';
+            loadClient(serial);
+        }
+
+        function escHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ==========================================
         // Reset
         // ==========================================
         function resetScan() {
-            window.location.href = window.location.pathname;
+            currentSerial = '';
+            document.getElementById('clientCard').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+            window.history.replaceState({}, '', window.location.pathname);
+            loadDashboard();
         }
 
         // Init on load
