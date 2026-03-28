@@ -293,6 +293,56 @@
             font-weight: 400;
         }
 
+        /* Admin actions */
+        .admin-actions {
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid #f0ebe5;
+        }
+        .admin-actions-title {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #c5bdb5;
+            margin-bottom: 0.6rem;
+            font-weight: 500;
+        }
+        .admin-actions-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .btn-admin {
+            flex: 1;
+            padding: 0.55rem 0.3rem;
+            border: 1px solid #e8e0d8;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            background: #faf8f5;
+            color: #8a8078;
+            transition: all 0.15s;
+            text-align: center;
+        }
+        .btn-admin:hover {
+            background: #f0ebe5;
+            color: #2c2420;
+        }
+        .btn-admin:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .btn-admin.danger {
+            color: #c77e7e;
+            border-color: #e8d0d0;
+        }
+        .btn-admin.danger:hover {
+            background: #fdf0f0;
+            color: #b05050;
+        }
+
         /* Dashboard styles */
         #dashboardCard {
             display: none;
@@ -479,6 +529,19 @@
                 <p id="resultText"></p>
             </div>
 
+            <div class="admin-actions">
+                <div class="admin-actions-title">Admin Actions</div>
+                <div class="admin-actions-row">
+                    <button class="btn-admin" onclick="adminAction('add_stamp')">+ Stamp</button>
+                    <button class="btn-admin" onclick="adminAction('remove_stamp')" id="removeStampBtn">− Stamp</button>
+                    <button class="btn-admin" onclick="adminAction('add_reward')">+ Reward</button>
+                    <button class="btn-admin" onclick="adminAction('remove_reward')" id="removeRewardBtn">− Reward</button>
+                </div>
+                <div class="admin-actions-row">
+                    <button class="btn-admin danger" onclick="deleteClient()">Delete Client</button>
+                </div>
+            </div>
+
             <div class="scan-another">
                 <a href="#" onclick="resetScan()">← Back to dashboard</a>
             </div>
@@ -647,6 +710,10 @@
 
             // Reset result
             document.getElementById('result').style.display = 'none';
+
+            // Admin action button states
+            document.getElementById('removeStampBtn').disabled = client.total_stamps <= 0;
+            document.getElementById('removeRewardBtn').disabled = client.rewards_available <= 0;
         }
 
         // ==========================================
@@ -744,6 +811,92 @@
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Redeem';
+            }
+        }
+
+        // ==========================================
+        // Admin actions (add/remove stamp/reward, delete)
+        // ==========================================
+        async function adminAction(action) {
+            const labels = {
+                add_stamp: 'Adding stamp...',
+                remove_stamp: 'Removing stamp...',
+                add_reward: 'Adding reward...',
+                remove_reward: 'Removing reward...',
+            };
+
+            // Disable all admin buttons
+            document.querySelectorAll('.btn-admin').forEach(b => b.disabled = true);
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/admin-action`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                    body: JSON.stringify({
+                        serial: currentSerial,
+                        admin_secret: adminSecret,
+                        action,
+                    }),
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Action failed');
+
+                // Show brief result
+                const result = document.getElementById('result');
+                result.style.display = 'block';
+                result.className = 'result success';
+                document.getElementById('resultIcon').textContent = '✓';
+                document.getElementById('resultTitle').textContent = data.message;
+                document.getElementById('resultText').textContent = '';
+
+                // Refresh client data
+                await loadClient(currentSerial);
+
+                // Auto-hide result after 2s
+                setTimeout(() => { result.style.display = 'none'; }, 2000);
+
+            } catch (err) {
+                const result = document.getElementById('result');
+                result.style.display = 'block';
+                result.className = 'result error';
+                document.getElementById('resultIcon').textContent = '✗';
+                document.getElementById('resultTitle').textContent = 'Error';
+                document.getElementById('resultText').textContent = err.message;
+            } finally {
+                document.querySelectorAll('.btn-admin').forEach(b => b.disabled = false);
+            }
+        }
+
+        async function deleteClient() {
+            if (!confirm('Delete this client? Their pass will stop working but won\'t be removed from their phone.')) return;
+            if (!confirm('Are you sure? This cannot be undone.')) return;
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/admin-action`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                    body: JSON.stringify({
+                        serial: currentSerial,
+                        admin_secret: adminSecret,
+                        action: 'delete',
+                    }),
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Delete failed');
+
+                alert(data.message);
+                resetScan();
+
+            } catch (err) {
+                alert('Error: ' + err.message);
             }
         }
 
