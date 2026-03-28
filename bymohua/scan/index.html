@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByMohua Studio — Scan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #faf8f5;
+            color: #2c2420;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .logo h1 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: #b8956a;
+        }
+        .logo .badge {
+            display: inline-block;
+            background: #b8956a;
+            color: #ffffff;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-top: 0.4rem;
+            font-weight: 600;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid #e8e0d8;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 20px rgba(184, 149, 106, 0.06);
+        }
+
+        /* Auth screen */
+        #authCard .form-group {
+            margin-bottom: 1rem;
+        }
+        #authCard label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #a09890;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+        #authCard input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e0d8d0;
+            border-radius: 10px;
+            background: #faf8f5;
+            color: #2c2420;
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #authCard input:focus {
+            border-color: #b8956a;
+        }
+
+        /* Loading */
+        #loadingCard {
+            display: none;
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+        .spinner-large {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border: 3px solid #e8e0d8;
+            border-top-color: #b8956a;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Client info */
+        #clientCard {
+            display: none;
+        }
+
+        .client-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        .client-name {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+        .client-member-since {
+            font-size: 0.72rem;
+            color: #b8b0a8;
+            margin-top: 0.2rem;
+        }
+
+        .reward-badge {
+            background: #f0f7f0;
+            color: #5a8a5a;
+            padding: 0.3rem 0.7rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .reward-badge.none {
+            background: #f5f0eb;
+            color: #b8b0a8;
+        }
+
+        .stamps-display {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        .stamps-dots {
+            font-size: 2rem;
+            letter-spacing: 0.3em;
+            margin-bottom: 0.5rem;
+            color: #b8956a;
+        }
+        .stamps-label {
+            font-size: 0.78rem;
+            color: #a09890;
+            font-weight: 300;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-top: 1px solid #f0ebe5;
+        }
+        .stat-label {
+            font-size: 0.78rem;
+            color: #b8b0a8;
+            font-weight: 300;
+        }
+        .stat-value {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: #2c2420;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            letter-spacing: 0.03em;
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .btn-stamp {
+            background: #b8956a;
+            color: #ffffff;
+        }
+        .btn-stamp:hover:not(:disabled) {
+            background: #a68558;
+        }
+        .btn-redeem {
+            background: #f0f7f0;
+            color: #5a8a5a;
+            border: 1px solid #d8e8d8;
+        }
+        .btn-redeem:hover:not(:disabled) {
+            background: #e0f0e0;
+        }
+        .btn-redeem.unavailable {
+            background: #f5f2ef;
+            color: #ccc5be;
+            border-color: #e8e0d8;
+        }
+
+        /* Result */
+        .result {
+            display: none;
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+        .result.success {
+            background: #f0f7f0;
+            border: 1px solid #d8e8d8;
+        }
+        .result.error {
+            background: #fdf0f0;
+            border: 1px solid #e8d0d0;
+        }
+        .result .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .result h3 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-bottom: 0.3rem;
+        }
+        .result p {
+            font-size: 0.82rem;
+            color: #a09890;
+            font-weight: 300;
+        }
+
+        .message {
+            text-align: center;
+            padding: 0.8rem;
+            border-radius: 10px;
+            margin-top: 0.75rem;
+            font-size: 0.82rem;
+            display: none;
+        }
+        .message.error {
+            background: #fdf0f0;
+            color: #b87070;
+            border: 1px solid #e8d0d0;
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            background: #b8956a;
+            color: #ffffff;
+            margin-top: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .scan-another {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .scan-another a {
+            color: #b8956a;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 400;
+        }
+
+        .spinner-small {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid currentColor;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 0.3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>ByMohua Studio</h1>
+            <span class="badge">Admin</span>
+        </div>
+
+        <!-- Auth Screen -->
+        <div class="card" id="authCard">
+            <div class="form-group">
+                <label for="adminPassword">Admin Password</label>
+                <input type="password" id="adminPassword" placeholder="Enter admin password" autocomplete="off">
+            </div>
+            <button class="btn-full" id="authBtn" onclick="authenticate()">Sign In</button>
+            <div class="message" id="authMessage"></div>
+        </div>
+
+        <!-- Loading -->
+        <div class="card" id="loadingCard">
+            <div class="spinner-large"></div>
+            <p style="color: #8a8078;">Looking up client...</p>
+        </div>
+
+        <!-- Client Info -->
+        <div class="card" id="clientCard">
+            <div class="client-header">
+                <div>
+                    <div class="client-name" id="clientName"></div>
+                </div>
+                <div class="reward-badge" id="rewardBadge"></div>
+            </div>
+
+            <div class="stamps-display">
+                <div class="stamps-dots" id="stampsDots"></div>
+                <div class="stamps-label" id="stampsLabel"></div>
+            </div>
+
+            <div class="stats-row">
+                <span class="stat-label">Total stamps</span>
+                <span class="stat-value" id="totalStamps"></span>
+            </div>
+            <div class="stats-row">
+                <span class="stat-label">Rewards earned</span>
+                <span class="stat-value" id="rewardsEarned"></span>
+            </div>
+            <div class="stats-row">
+                <span class="stat-label">Rewards redeemed</span>
+                <span class="stat-value" id="rewardsRedeemed"></span>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-stamp" id="stampBtn" onclick="doStamp()">
+                    + Stamp
+                </button>
+                <button class="btn btn-redeem" id="redeemBtn" onclick="doRedeem()">
+                    Redeem
+                </button>
+            </div>
+
+            <div class="result" id="result">
+                <div class="icon" id="resultIcon"></div>
+                <h3 id="resultTitle"></h3>
+                <p id="resultText"></p>
+            </div>
+
+            <div class="scan-another">
+                <a href="#" onclick="resetScan()">← Scan another client</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // Configuration
+        // ==========================================
+        const SUPABASE_URL = 'https://owcrqpaznavtqlflddfz.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_f9Qi142n9DTVWK3DKoy8vQ_jcghQnoD';
+
+        let adminSecret = '';
+        let currentSerial = '';
+
+        // ==========================================
+        // Init: check URL for serial param
+        // ==========================================
+        function init() {
+            const params = new URLSearchParams(window.location.search);
+            currentSerial = params.get('serial') || '';
+
+            // Check for saved admin session
+            const savedPassword = sessionStorage.getItem('bymohua_admin');
+            if (savedPassword) {
+                adminSecret = savedPassword;
+                onAuthenticated();
+            }
+        }
+
+        // ==========================================
+        // Auth
+        // ==========================================
+        function authenticate() {
+            const password = document.getElementById('adminPassword').value.trim();
+            if (!password) {
+                showAuthError('Please enter your password');
+                return;
+            }
+
+            adminSecret = password;
+            sessionStorage.setItem('bymohua_admin', password);
+            onAuthenticated();
+        }
+
+        // Enter key on password field
+        document.getElementById('adminPassword').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') authenticate();
+        });
+
+        function onAuthenticated() {
+            document.getElementById('authCard').style.display = 'none';
+
+            if (currentSerial) {
+                loadClient(currentSerial);
+            } else {
+                // No serial in URL — show message
+                document.getElementById('loadingCard').style.display = 'block';
+                document.getElementById('loadingCard').innerHTML = `
+                    <p style="color: #8a8078;">No client QR scanned.<br>Scan a client's loyalty card to get started.</p>
+                `;
+            }
+        }
+
+        function showAuthError(msg) {
+            const el = document.getElementById('authMessage');
+            el.textContent = msg;
+            el.className = 'message error';
+            el.style.display = 'block';
+        }
+
+        // ==========================================
+        // Load client data
+        // ==========================================
+        async function loadClient(serial) {
+            document.getElementById('loadingCard').style.display = 'block';
+            document.getElementById('clientCard').style.display = 'none';
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/get-client`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                    body: JSON.stringify({ serial, admin_secret: adminSecret }),
+                });
+
+                if (res.status === 401) {
+                    // Bad admin PIN
+                    sessionStorage.removeItem('bymohua_admin');
+                    document.getElementById('loadingCard').style.display = 'none';
+                    document.getElementById('authCard').style.display = 'block';
+                    showAuthError('Invalid password. Please try again.');
+                    return;
+                }
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Client not found');
+                }
+
+                const client = await res.json();
+                renderClient(client);
+
+            } catch (err) {
+                document.getElementById('loadingCard').innerHTML = `
+                    <p style="color: #c77e7e;">${err.message}</p>
+                    <div class="scan-another" style="margin-top:1rem;">
+                        <a href="#" onclick="resetScan()">← Try again</a>
+                    </div>
+                `;
+            }
+        }
+
+        // ==========================================
+        // Render client card
+        // ==========================================
+        function renderClient(client) {
+            document.getElementById('loadingCard').style.display = 'none';
+            document.getElementById('clientCard').style.display = 'block';
+
+            document.getElementById('clientName').textContent = client.name;
+
+            // Reward badge
+            const badge = document.getElementById('rewardBadge');
+            if (client.rewards_available > 0) {
+                badge.textContent = `${client.rewards_available} reward${client.rewards_available > 1 ? 's' : ''}`;
+                badge.className = 'reward-badge';
+            } else {
+                badge.textContent = 'No rewards';
+                badge.className = 'reward-badge none';
+            }
+
+            // Stamp dots
+            const filled = client.current_cycle_stamps;
+            const total = client.stamps_required;
+            const dots = '●'.repeat(filled) + '○'.repeat(total - filled);
+            document.getElementById('stampsDots').textContent = dots;
+            document.getElementById('stampsLabel').textContent = `${filled} / ${total} stamps`;
+
+            // Stats
+            document.getElementById('totalStamps').textContent = client.total_stamps;
+            document.getElementById('rewardsEarned').textContent = client.rewards_earned;
+            document.getElementById('rewardsRedeemed').textContent = client.rewards_redeemed;
+
+            // Redeem button state
+            const redeemBtn = document.getElementById('redeemBtn');
+            if (client.rewards_available > 0) {
+                redeemBtn.disabled = false;
+                redeemBtn.className = 'btn btn-redeem';
+                redeemBtn.textContent = `Redeem (${client.rewards_available})`;
+            } else {
+                redeemBtn.disabled = true;
+                redeemBtn.className = 'btn btn-redeem unavailable';
+                redeemBtn.textContent = 'No rewards';
+            }
+
+            // Reset result
+            document.getElementById('result').style.display = 'none';
+        }
+
+        // ==========================================
+        // Stamp
+        // ==========================================
+        async function doStamp() {
+            const btn = document.getElementById('stampBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-small"></span>';
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/stamp`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                    body: JSON.stringify({ serial: currentSerial, admin_secret: adminSecret }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error || 'Failed to stamp');
+
+                // Show result
+                const result = document.getElementById('result');
+                result.style.display = 'block';
+                result.className = 'result success';
+                document.getElementById('resultIcon').textContent = data.reward_just_earned ? '🎉' : '⭐';
+                document.getElementById('resultTitle').textContent = data.reward_just_earned
+                    ? 'Reward earned!'
+                    : 'Stamp added!';
+                document.getElementById('resultText').textContent = data.reward_just_earned
+                    ? `${data.client_name} earned: ${data.reward_description}`
+                    : `${data.current_cycle_stamps}/${data.stamps_required} stamps — ${data.stamps_required - data.current_cycle_stamps} to next reward`;
+
+                // Refresh client data
+                await loadClient(currentSerial);
+
+            } catch (err) {
+                const result = document.getElementById('result');
+                result.style.display = 'block';
+                result.className = 'result error';
+                document.getElementById('resultIcon').textContent = '❌';
+                document.getElementById('resultTitle').textContent = 'Error';
+                document.getElementById('resultText').textContent = err.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '+ Stamp';
+            }
+        }
+
+        // ==========================================
+        // Redeem
+        // ==========================================
+        async function doRedeem() {
+            if (!confirm('Redeem one reward for this client?')) return;
+
+            const btn = document.getElementById('redeemBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-small"></span>';
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/redeem`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                    body: JSON.stringify({ serial: currentSerial, admin_secret: adminSecret }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error || 'Failed to redeem');
+
+                // Show result
+                const result = document.getElementById('result');
+                result.style.display = 'block';
+                result.className = 'result success';
+                document.getElementById('resultIcon').textContent = '✨';
+                document.getElementById('resultTitle').textContent = 'Reward redeemed!';
+                document.getElementById('resultText').textContent = `${data.reward_redeemed} — ${data.rewards_available} reward${data.rewards_available !== 1 ? 's' : ''} remaining`;
+
+                // Refresh client data
+                await loadClient(currentSerial);
+
+            } catch (err) {
+                const result = document.getElementById('result');
+                result.style.display = 'block';
+                result.className = 'result error';
+                document.getElementById('resultIcon').textContent = '❌';
+                document.getElementById('resultTitle').textContent = 'Error';
+                document.getElementById('resultText').textContent = err.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Redeem';
+            }
+        }
+
+        // ==========================================
+        // Reset
+        // ==========================================
+        function resetScan() {
+            window.location.href = window.location.pathname;
+        }
+
+        // Init on load
+        init();
+    </script>
+</body>
+</html>
