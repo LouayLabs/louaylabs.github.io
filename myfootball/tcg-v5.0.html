@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyFootball — TCG v4.9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #08080c;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px 200px;
+    gap: 48px;
+  }
+
+  h1 {
+    font-size: 10px; font-weight: 800; letter-spacing: 8px;
+    text-transform: uppercase; color: rgba(255,255,255,0.15);
+  }
+  .page-sub {
+    font-size: 8px; letter-spacing: 3px; color: rgba(255,255,255,0.06);
+    text-transform: uppercase; margin-top: -30px;
+  }
+
+  .section {
+    width: 100%; max-width: 1200px;
+  }
+  .section-header {
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .section-number {
+    font-size: 7px; font-weight: 800; letter-spacing: 3px;
+    text-transform: uppercase; color: rgba(255,255,255,0.1);
+  }
+  .section-name {
+    font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.85);
+    margin-top: 3px; letter-spacing: -0.3px;
+  }
+  .section-desc {
+    font-size: 10px; color: rgba(255,255,255,0.25);
+    margin-top: 3px; line-height: 1.6; max-width: 600px;
+  }
+
+  .row {
+    display: flex; flex-wrap: wrap;
+    gap: 16px; align-items: flex-start;
+  }
+  .card-wrap {
+    text-align: center;
+  }
+  .card-label {
+    font-size: 7px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: rgba(255,255,255,0.12);
+    margin-top: 8px;
+  }
+
+  /* ═══════════════════════════════════════
+     SHARED CARD STRUCTURE — 230px
+     ═══════════════════════════════════════ */
+  .card {
+    width: 230px;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    cursor: default;
+    transition: transform 0.3s ease;
+  }
+  .card:hover { transform: scale(1.03) translateY(-3px); }
+
+  /* ── Colour Zone ── */
+  .cz {
+    position: relative;
+    padding: 16px 12px 36px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .cz-bg { position: absolute; inset: 0; }
+  .cz-dots { display: none; }
+  .cz-diag { display: none; }
+
+  /* ═══════════════════════════════════════
+     CZ TEXTURE OPTIONS — pick one
+     ═══════════════════════════════════════ */
+
+  /* A: Film grain — SVG noise filter */
+  .cz-grain {
+    position: absolute; inset: 0; pointer-events: none;
+    opacity: 0.08;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size: 128px 128px;
+  }
+
+  /* B: Linen weave — ultra-fine crosshatch canvas feel */
+  .cz-linen {
+    position: absolute; inset: 0; pointer-events: none;
+    opacity: 0.07;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.5) 0px, transparent 1px, transparent 3px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.5) 0px, transparent 1px, transparent 3px);
+  }
+
+  /* C: Stipple — scattered irregular particles, spray paint feel */
+  .cz-stipple {
+    position: absolute; inset: 0; pointer-events: none;
+    opacity: 0.14;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='turbulence' baseFrequency='1.2' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='0 0 0 0 0 1 1 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)' fill='white'/%3E%3C/svg%3E");
+    background-size: 150px 150px;
+  }
+
+  /* D: Brushed — directional streaks like brushed metal */
+  .cz-brushed {
+    position: absolute; inset: 0; pointer-events: none;
+    opacity: 0.10;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.015 0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+  }
+
+  /* Radial glow behind title */
+  .cz-glow {
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 60px;
+    border-radius: 50%;
+    filter: blur(25px);
+    opacity: 0.2;
+  }
+
+  /* Faint background icon / watermark */
+  .cz-watermark {
+    display: none;
+  }
+
+  /* ═══════════════════════════════════════
+     BODY ILLUSTRATION — unique per honor
+     Football-specific imagery moved to body.
+     Applied via data-honor on .body
+     ═══════════════════════════════════════ */
+  .body-illus {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  /* Light body: invert the white SVG to dark, low opacity */
+  .body-light .body-illus {
+    filter: invert(1);
+    opacity: 0.05;
+    background-size: 90% auto;
+    background-position: center 60%;
+  }
+  /* Dark body: keep white SVG, slightly higher opacity */
+  .body-dark .body-illus {
+    opacity: 0.10;
+    background-size: 90% auto;
+    background-position: center 60%;
+  }
+
+  /* ── MVP — Player silhouette holding trophy above head ── */
+  .body[data-honor="mvp"] .body-illus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 100' fill='none'%3E%3Cg opacity='0.12'%3E%3Cpath d='M115,92 L115,58 M108,92 L122,92' stroke='white' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M115,58 L108,70 M115,58 L122,70' stroke='white' stroke-width='1.2' stroke-linecap='round'/%3E%3Cpath d='M105,58 L100,72 M125,58 L130,72' stroke='white' stroke-width='1' stroke-linecap='round'/%3E%3Cellipse cx='115' cy='55' rx='4' ry='4' fill='white' opacity='0.6'/%3E%3Cpath d='M100,38 L103,28 L105,22 L108,20 L115,14 L122,20 L125,22 L127,28 L130,38' stroke='white' stroke-width='0.8' fill='white' fill-opacity='0.06'/%3E%3Cpath d='M100,38 Q98,34 94,32 Q91,31 92,27 Q93,24 97,25 Q100,26 100,30' stroke='white' stroke-width='0.6' fill='none'/%3E%3Cpath d='M130,38 Q132,34 136,32 Q139,31 138,27 Q137,24 133,25 Q130,26 130,30' stroke='white' stroke-width='0.6' fill='none'/%3E%3Cline x1='115' y1='22' x2='115' y2='14' stroke='white' stroke-width='0.5'/%3E%3Crect x='108' y='38' width='14' height='3' rx='1' fill='white' opacity='0.3'/%3E%3Crect x='105' y='41' width='20' height='4' rx='1' fill='white' opacity='0.2'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── THE WALL — Free kick wall: 4 player silhouettes side by side ── */
+  .body[data-honor="wall"] .body-illus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 100' fill='none'%3E%3Cg opacity='0.13'%3E%3Cg transform='translate(72,20)'%3E%3Cellipse cx='0' cy='5' rx='4' ry='4.5' fill='white'/%3E%3Crect x='-5' y='12' width='10' height='22' rx='3' fill='white'/%3E%3Crect x='-6' y='34' width='5' height='16' rx='2' fill='white'/%3E%3Crect x='1' y='34' width='5' height='16' rx='2' fill='white'/%3E%3C/g%3E%3Cg transform='translate(93,18)'%3E%3Cellipse cx='0' cy='5' rx='4' ry='4.5' fill='white'/%3E%3Crect x='-5' y='12' width='10' height='24' rx='3' fill='white'/%3E%3Crect x='-6' y='36' width='5' height='17' rx='2' fill='white'/%3E%3Crect x='1' y='36' width='5' height='17' rx='2' fill='white'/%3E%3C/g%3E%3Cg transform='translate(114,17)'%3E%3Cellipse cx='0' cy='5' rx='4' ry='4.5' fill='white'/%3E%3Crect x='-5' y='12' width='10' height='24' rx='3' fill='white'/%3E%3Crect x='-6' y='36' width='5' height='18' rx='2' fill='white'/%3E%3Crect x='1' y='36' width='5' height='18' rx='2' fill='white'/%3E%3Cpath d='M-4,16 L-8,26 M4,16 L8,26' stroke='white' stroke-width='1'/%3E%3C/g%3E%3Cg transform='translate(135,18)'%3E%3Cellipse cx='0' cy='5' rx='4' ry='4.5' fill='white'/%3E%3Crect x='-5' y='12' width='10' height='24' rx='3' fill='white'/%3E%3Crect x='-6' y='36' width='5' height='17' rx='2' fill='white'/%3E%3Crect x='1' y='36' width='5' height='17' rx='2' fill='white'/%3E%3C/g%3E%3Cg transform='translate(156,20)'%3E%3Cellipse cx='0' cy='5' rx='4' ry='4.5' fill='white'/%3E%3Crect x='-5' y='12' width='10' height='22' rx='3' fill='white'/%3E%3Crect x='-6' y='34' width='5' height='16' rx='2' fill='white'/%3E%3Crect x='1' y='34' width='5' height='16' rx='2' fill='white'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── THE ARCHITECT — Mini pitch with formation dots + passing arrows ── */
+  .body[data-honor="architect"] .body-illus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 100' fill='none'%3E%3Cg opacity='0.14'%3E%3Crect x='30' y='10' width='170' height='80' rx='0' stroke='white' stroke-width='0.5'/%3E%3Cline x1='115' y1='10' x2='115' y2='90' stroke='white' stroke-width='0.4'/%3E%3Ccircle cx='115' cy='50' r='10' stroke='white' stroke-width='0.4' fill='none'/%3E%3Cdefs%3E%3Cmarker id='a8' markerWidth='5' markerHeight='3.5' refX='4' refY='1.75' orient='auto'%3E%3Cpath d='M0,0 L5,1.75 L0,3.5' fill='white'/%3E%3C/marker%3E%3C/defs%3E%3Ccircle cx='55' cy='50' r='3' fill='white' opacity='0.7'/%3E%3Ccircle cx='80' cy='30' r='2.5' fill='white' opacity='0.5'/%3E%3Ccircle cx='80' cy='70' r='2.5' fill='white' opacity='0.5'/%3E%3Ccircle cx='110' cy='40' r='2.5' fill='white' opacity='0.5'/%3E%3Ccircle cx='110' cy='60' r='2.5' fill='white' opacity='0.5'/%3E%3Ccircle cx='145' cy='35' r='2.5' fill='white' opacity='0.5'/%3E%3Ccircle cx='145' cy='65' r='2.5' fill='white' opacity='0.5'/%3E%3Ccircle cx='175' cy='50' r='2.5' fill='white' opacity='0.5'/%3E%3Cline x1='58' y1='48' x2='77' y2='32' stroke='white' stroke-width='0.6' stroke-dasharray='3,2' marker-end='url(%23a8)'/%3E%3Cline x1='58' y1='52' x2='77' y2='68' stroke='white' stroke-width='0.6' stroke-dasharray='3,2' marker-end='url(%23a8)'/%3E%3Cline x1='83' y1='31' x2='107' y2='39' stroke='white' stroke-width='0.5' stroke-dasharray='2,2' marker-end='url(%23a8)'/%3E%3Cline x1='83' y1='69' x2='107' y2='61' stroke='white' stroke-width='0.5' stroke-dasharray='2,2' marker-end='url(%23a8)'/%3E%3Cline x1='113' y1='41' x2='142' y2='36' stroke='white' stroke-width='0.5' stroke-dasharray='2,2' marker-end='url(%23a8)'/%3E%3Cline x1='113' y1='59' x2='142' y2='64' stroke='white' stroke-width='0.5' stroke-dasharray='2,2' marker-end='url(%23a8)'/%3E%3Cline x1='148' y1='37' x2='172' y2='48' stroke='white' stroke-width='0.5' stroke-dasharray='2,2' marker-end='url(%23a8)'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── THE FINISHER — Ball smashing into bulging net ── */
+  .body[data-honor="finisher"] .body-illus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 100' fill='none'%3E%3Cg opacity='0.13'%3E%3Crect x='145' y='18' width='8' height='64' rx='0' stroke='white' stroke-width='1.2'/%3E%3Cline x1='145' y1='18' x2='145' y2='82' stroke='white' stroke-width='1.5'/%3E%3Cline x1='145' y1='18' x2='195' y2='28' stroke='white' stroke-width='0.5'/%3E%3Cline x1='145' y1='82' x2='195' y2='72' stroke='white' stroke-width='0.5'/%3E%3Cline x1='153' y1='18' x2='195' y2='28' stroke='white' stroke-width='0.4'/%3E%3Cline x1='153' y1='82' x2='195' y2='72' stroke='white' stroke-width='0.4'/%3E%3Cline x1='145' y1='35' x2='185' y2='38' stroke='white' stroke-width='0.3'/%3E%3Cline x1='145' y1='50' x2='175' y2='50' stroke='white' stroke-width='0.3'/%3E%3Cline x1='145' y1='65' x2='185' y2='62' stroke='white' stroke-width='0.3'/%3E%3Cline x1='160' y1='20' x2='165' y2='78' stroke='white' stroke-width='0.3'/%3E%3Cline x1='175' y1='24' x2='178' y2='74' stroke='white' stroke-width='0.3'/%3E%3Cline x1='190' y1='27' x2='192' y2='71' stroke='white' stroke-width='0.3'/%3E%3Cpath d='M145,38 Q160,42 168,50 Q160,58 145,62' stroke='white' stroke-width='0.4' fill='white' fill-opacity='0.04'/%3E%3Ccircle cx='138' cy='50' r='7' stroke='white' stroke-width='1' fill='white' fill-opacity='0.08'/%3E%3Cpath d='M131,50 L135,47 L138,50 L135,53 Z' stroke='white' stroke-width='0.3'/%3E%3Cpath d='M138,43 L140,46 M138,57 L140,54 M145,50 L141,50' stroke='white' stroke-width='0.3'/%3E%3Cpath d='M125,50 L118,50 M122,46 L114,42 M122,54 L114,58' stroke='white' stroke-width='0.5' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── THE ENGINE — Heat map: box-to-box corridors on mini pitch (coloured) ── */
+  .body[data-honor="engine"] .body-illus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 140' fill='none'%3E%3C!-- Pitch outline --%3E%3Crect x='10' y='10' width='180' height='120' rx='2' stroke='%23f97316' stroke-width='0.8' fill='none' opacity='0.25'/%3E%3Cline x1='100' y1='10' x2='100' y2='130' stroke='%23f97316' stroke-width='0.5' opacity='0.2'/%3E%3Ccircle cx='100' cy='70' r='14' stroke='%23f97316' stroke-width='0.5' fill='none' opacity='0.2'/%3E%3Ccircle cx='100' cy='70' r='1.5' fill='%23f97316' opacity='0.3'/%3E%3C!-- Penalty boxes --%3E%3Crect x='10' y='38' width='22' height='54' stroke='%23f97316' stroke-width='0.4' fill='none' opacity='0.18'/%3E%3Crect x='168' y='38' width='22' height='54' stroke='%23f97316' stroke-width='0.4' fill='none' opacity='0.18'/%3E%3C!-- Goal boxes --%3E%3Crect x='10' y='50' width='10' height='30' stroke='%23f97316' stroke-width='0.3' fill='none' opacity='0.15'/%3E%3Crect x='180' y='50' width='10' height='30' stroke='%23f97316' stroke-width='0.3' fill='none' opacity='0.15'/%3E%3C!-- Heat blobs — box to box coverage --%3E%3Cellipse cx='50' cy='70' rx='28' ry='22' fill='%23f97316' opacity='0.12'/%3E%3Cellipse cx='100' cy='70' rx='24' ry='26' fill='%23f97316' opacity='0.18'/%3E%3Cellipse cx='150' cy='70' rx='28' ry='22' fill='%23f97316' opacity='0.12'/%3E%3C!-- Secondary heat --%3E%3Cellipse cx='75' cy='50' rx='20' ry='15' fill='%23f97316' opacity='0.08'/%3E%3Cellipse cx='125' cy='90' rx='20' ry='15' fill='%23f97316' opacity='0.08'/%3E%3Cellipse cx='75' cy='90' rx='20' ry='15' fill='%23f97316' opacity='0.08'/%3E%3Cellipse cx='125' cy='50' rx='20' ry='15' fill='%23f97316' opacity='0.08'/%3E%3C!-- Hot core --%3E%3Cellipse cx='100' cy='70' rx='14' ry='14' fill='%23f97316' opacity='0.15'/%3E%3Cellipse cx='65' cy='65' rx='10' ry='10' fill='%23f97316' opacity='0.10'/%3E%3Cellipse cx='135' cy='75' rx='10' ry='10' fill='%23f97316' opacity='0.10'/%3E%3C/svg%3E");
+  }
+  /* Engine: show coloured illustration, not inverted */
+  .body-light[data-honor="engine"] .body-illus {
+    filter: none;
+    opacity: 0.5;
+    background-size: 75% 45%;
+    background-position: center 68%;
+  }
+  .body-dark[data-honor="engine"] .body-illus {
+    opacity: 0.4;
+    background-size: 75% 45%;
+    background-position: center 68%;
+  }
+
+  /* ── ON FIRE — Flaming football ── */
+  .body[data-honor="onfire"] .body-illus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 100' fill='none'%3E%3Cg opacity='0.14'%3E%3Ccircle cx='115' cy='62' r='14' stroke='white' stroke-width='1' fill='white' fill-opacity='0.05'/%3E%3Cpath d='M108,62 L112,58 L115,62 L118,58 L122,62' stroke='white' stroke-width='0.4'/%3E%3Cpath d='M115,48 L117,55 M115,76 L113,69 M101,62 L108,64 M129,62 L122,60' stroke='white' stroke-width='0.3'/%3E%3Cpath d='M105,55 Q100,42 107,28 Q112,35 110,42 Q115,32 120,22 Q122,35 118,45 Q125,38 130,28 Q128,42 122,52' stroke='white' stroke-width='0.8' fill='white' fill-opacity='0.04'/%3E%3Cpath d='M110,48 Q108,38 113,30 Q115,38 114,44' stroke='white' stroke-width='0.5' fill='none'/%3E%3Cpath d='M120,50 Q122,40 118,32 Q116,40 117,46' stroke='white' stroke-width='0.5' fill='none'/%3E%3Cpath d='M100,58 Q96,48 102,38' stroke='white' stroke-width='0.4' fill='none' opacity='0.6'/%3E%3Cpath d='M130,58 Q134,48 128,38' stroke='white' stroke-width='0.4' fill='none' opacity='0.6'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── UNSTOPPABLE — Ball smashing through a barrier ── */
+  .body[data-honor="unstoppable"] .body-illus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 100' fill='none'%3E%3Cg opacity='0.14'%3E%3Ccircle cx='115' cy='50' r='10' stroke='white' stroke-width='1.2' fill='white' fill-opacity='0.06'/%3E%3Cpath d='M108,50 L112,46 L115,50 L118,46 L122,50' stroke='white' stroke-width='0.3'/%3E%3Cpath d='M115,40 L116,44 M115,60 L114,56' stroke='white' stroke-width='0.3'/%3E%3Cpath d='M80,20 L80,44 L88,40' stroke='white' stroke-width='0.7' fill='none'/%3E%3Cpath d='M80,80 L80,56 L88,60' stroke='white' stroke-width='0.7' fill='none'/%3E%3Cpath d='M150,20 L150,44 L142,40' stroke='white' stroke-width='0.7' fill='none'/%3E%3Cpath d='M150,80 L150,56 L142,60' stroke='white' stroke-width='0.7' fill='none'/%3E%3Cpath d='M84,38 L78,32 M84,42 L76,40 M86,44 L80,46' stroke='white' stroke-width='0.5' opacity='0.6'/%3E%3Cpath d='M146,38 L152,32 M146,42 L154,40 M144,44 L150,46' stroke='white' stroke-width='0.5' opacity='0.6'/%3E%3Cpath d='M84,58 L78,62 M84,62 L76,66 M86,56 L80,54' stroke='white' stroke-width='0.5' opacity='0.6'/%3E%3Cpath d='M146,58 L152,62 M146,62 L154,66 M144,56 L150,54' stroke='white' stroke-width='0.5' opacity='0.6'/%3E%3Cpath d='M90,46 L96,48 M90,54 L96,52' stroke='white' stroke-width='0.4' opacity='0.4'/%3E%3Cpath d='M140,46 L134,48 M140,54 L134,52' stroke='white' stroke-width='0.4' opacity='0.4'/%3E%3Cline x1='95' y1='50' x2='103' y2='50' stroke='white' stroke-width='0.6' opacity='0.5'/%3E%3Cline x1='127' y1='50' x2='135' y2='50' stroke='white' stroke-width='0.6' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── ROOKIE — Player silhouette walking out of tunnel ── */
+  .body[data-honor="rookie"] .body-illus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 100' fill='none'%3E%3Cg opacity='0.12'%3E%3Cpath d='M85,10 L85,90 M145,10 L145,90' stroke='white' stroke-width='0.6'/%3E%3Cpath d='M85,10 Q115,5 145,10' stroke='white' stroke-width='0.8' fill='none'/%3E%3Cpath d='M90,10 L90,85 M95,10 L95,82 M135,10 L135,85 M140,10 L140,82' stroke='white' stroke-width='0.2' opacity='0.4'/%3E%3Crect x='90' y='85' width='50' height='8' fill='white' opacity='0.04'/%3E%3Cellipse cx='115' cy='45' rx='5' ry='5.5' fill='white' opacity='0.6'/%3E%3Crect x='110' y='53' width='10' height='18' rx='3' fill='white' opacity='0.5'/%3E%3Crect x='108' y='71' width='5' height='14' rx='2' fill='white' opacity='0.4'/%3E%3Crect x='117' y='71' width='5' height='14' rx='2' fill='white' opacity='0.4'/%3E%3Cpath d='M107,57 L102,65 M123,57 L128,65' stroke='white' stroke-width='0.8' opacity='0.4'/%3E%3Cpath d='M100,90 Q107,88 115,92 Q123,88 130,90' stroke='white' stroke-width='0.4' opacity='0.3'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── VETERAN — Captain's armband ── */
+  .body[data-honor="veteran"] .body-illus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 100' fill='none'%3E%3Cg opacity='0.13'%3E%3Cpath d='M88,32 Q88,22 115,20 Q142,22 142,32 L142,68 Q142,78 115,80 Q88,78 88,68 Z' stroke='white' stroke-width='0.8' fill='white' fill-opacity='0.03'/%3E%3Cpath d='M88,42 Q115,38 142,42' stroke='white' stroke-width='0.4'/%3E%3Cpath d='M88,58 Q115,54 142,58' stroke='white' stroke-width='0.4'/%3E%3Crect x='98' y='44' width='34' height='12' rx='2' fill='white' fill-opacity='0.06' stroke='white' stroke-width='0.5'/%3E%3Ctext x='115' y='54' font-family='sans-serif' font-size='8' font-weight='bold' fill='white' text-anchor='middle' opacity='0.5'%3EC%3C/text%3E%3Cpath d='M92,36 L100,36 M130,36 L138,36' stroke='white' stroke-width='0.3' opacity='0.4'/%3E%3Cpath d='M92,64 L100,64 M130,64 L138,64' stroke='white' stroke-width='0.3' opacity='0.4'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── LEGEND — Football shirt in a display frame ── */
+  .body[data-honor="legend"] .body-illus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 100' fill='none'%3E%3Cg opacity='0.12'%3E%3Crect x='80' y='10' width='70' height='80' rx='2' stroke='white' stroke-width='0.8'/%3E%3Crect x='83' y='13' width='64' height='74' rx='1' stroke='white' stroke-width='0.3'/%3E%3Cpath d='M100,22 L100,18 L95,20 L88,28 L92,32 L96,28 L96,42 L115,50 L134,42 L134,28 L138,32 L142,28 L135,20 L130,18 L130,22 Q125,26 115,26 Q105,26 100,22 Z' stroke='white' stroke-width='0.6' fill='white' fill-opacity='0.05'/%3E%3Cpath d='M96,42 L96,68 Q96,72 115,72 Q134,72 134,68 L134,42' stroke='white' stroke-width='0.5' fill='none'/%3E%3Ctext x='115' y='62' font-family='sans-serif' font-size='14' font-weight='bold' fill='white' text-anchor='middle' opacity='0.3'%3E10%3C/text%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── CENTURION — Shirt with "100" on the back + laurel wreath ── */
+  .body[data-honor="centurion"] .body-illus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 100' fill='none'%3E%3Cg opacity='0.13'%3E%3Cpath d='M100,18 L100,14 L95,16 L88,24 L92,28 L96,24 L96,38 L115,45 L134,38 L134,24 L138,28 L142,24 L135,16 L130,14 L130,18 Q125,22 115,22 Q105,22 100,18 Z' stroke='white' stroke-width='0.7' fill='white' fill-opacity='0.04'/%3E%3Cpath d='M96,38 L96,75 Q96,80 115,80 Q134,80 134,75 L134,38' stroke='white' stroke-width='0.6' fill='none'/%3E%3Ctext x='115' y='66' font-family='sans-serif' font-size='16' font-weight='bold' fill='white' text-anchor='middle' opacity='0.35'%3E100%3C/text%3E%3Cpath d='M82,30 Q78,42 78,55 Q78,68 82,78' stroke='white' stroke-width='0.5' fill='none' opacity='0.4'/%3E%3Cellipse cx='80' cy='35' rx='2.5' ry='4' transform='rotate(-15,80,35)' fill='white' opacity='0.08'/%3E%3Cellipse cx='79' cy='45' rx='2.5' ry='4' transform='rotate(-5,79,45)' fill='white' opacity='0.08'/%3E%3Cellipse cx='79' cy='55' rx='2.5' ry='4' fill='white' opacity='0.08'/%3E%3Cellipse cx='79' cy='65' rx='2.5' ry='4' transform='rotate(5,79,65)' fill='white' opacity='0.08'/%3E%3Cellipse cx='80' cy='74' rx='2.5' ry='4' transform='rotate(15,80,74)' fill='white' opacity='0.08'/%3E%3Cpath d='M148,30 Q152,42 152,55 Q152,68 148,78' stroke='white' stroke-width='0.5' fill='none' opacity='0.4'/%3E%3Cellipse cx='150' cy='35' rx='2.5' ry='4' transform='rotate(15,150,35)' fill='white' opacity='0.08'/%3E%3Cellipse cx='151' cy='45' rx='2.5' ry='4' transform='rotate(5,151,45)' fill='white' opacity='0.08'/%3E%3Cellipse cx='151' cy='55' rx='2.5' ry='4' fill='white' opacity='0.08'/%3E%3Cellipse cx='151' cy='65' rx='2.5' ry='4' transform='rotate(-5,151,65)' fill='white' opacity='0.08'/%3E%3Cellipse cx='150' cy='74' rx='2.5' ry='4' transform='rotate(-15,150,74)' fill='white' opacity='0.08'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ── Top Row: title only ── */
+  .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; z-index: 2;
+    padding: 4px 12px;
+  }
+  /* Band title in top-row */
+  .top-row .band-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 16px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    line-height: 1;
+    position: relative; z-index: 2;
+    text-align: center;
+  }
+  .player-count { display: none; }
+
+  .stars {
+    display: flex; gap: 1px;
+    direction: rtl;
+  }
+  .star {
+    font-size: 14px; line-height: 1;
+    color: #f5c542;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+  }
+
+  .stamp {
+    font-size: 5.5px; font-weight: 900; letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 5px;
+    border-radius: 3px;
+    border: 1.5px solid;
+    transform: rotate(2deg);
+    min-width: 32px;
+    text-align: center;
+  }
+  .stamp-solid { color: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.25); }
+  .stamp-outstanding { color: #f5c542; border-color: #f5c542; }
+  .stamp-elite { color: #f5c542; border-color: #f5c542; background: rgba(245,197,66,0.15); }
+  .stamp-perfect { color: #fff; border-color: #ff6b6b; background: #ff6b6b; letter-spacing: 1.5px; }
+  .stamp-none { visibility: hidden; }
+
+  /* ── Band (now inline in top-row, keep old styles for reference) ── */
+  .band {
+    display: none;
+  }
+  .band-over {
+    font-size: 6px; font-weight: 800; letter-spacing: 2.5px;
+    text-transform: uppercase; color: rgba(255,255,255,0.4);
+  }
+  .band-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 22px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    line-height: 1.05;
+    margin-top: 2px;
+  }
+
+  /* ── Avatar Row: stars | avatar | stamp ── */
+  .avatar-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -50px;
+    margin-bottom: -50px;
+    position: relative;
+    z-index: 1;
+    padding: 0 12px;
+  }
+  .avatar-row .stars {
+    position: absolute;
+    left: 12px;
+    top: 28%;
+    transform: translateY(-50%);
+    z-index: 2;
+  }
+  .avatar-row .stamp {
+    position: absolute;
+    right: 12px;
+    top: 28%;
+    transform: translateY(-50%) rotate(2deg);
+    z-index: 2;
+  }
+
+  /* ── Body Zone (light or dark) ── */
+  .body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 58px 14px 12px;
+    position: relative;
+  }
+
+  /* ═══════════════════════════════════════
+     HALFWAY LINE — accent-coloured divider
+     extending from the avatar ring outward
+     both directions to the card edges.
+     SVG mask cuts a circular gap matching
+     the avatar ring exactly.
+     ═══════════════════════════════════════ */
+  .body::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -14px; right: -14px;
+    height: 2.5px; z-index: 2;
+    pointer-events: none;
+    background-color: var(--card-accent, #888);
+    opacity: 0.85;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 3'%3E%3Cpath d='M0,0 L0,3 L60,3 A55,55 0 0,0 170,3 L230,3 L230,0 L170,0 A55,55 0 0,1 60,0 Z' fill='white'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 3'%3E%3Cpath d='M0,0 L0,3 L60,3 A55,55 0 0,0 170,3 L230,3 L230,0 L170,0 A55,55 0 0,1 60,0 Z' fill='white'/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+
+  .body-light {
+    background: #fff;
+  }
+  .body-dark {
+    background: #111114;
+  }
+
+  /* ═══════════════════════════════════════
+     BODY BACKGROUND OPTIONS — compare 4
+     Applied via .body-bg-X class on body
+     ═══════════════════════════════════════ */
+
+  /* A: Corner flourish — accent-coloured geometric corners */
+  .body-bg-a::before {
+    content: '';
+    position: absolute;
+    inset: 0; z-index: 0;
+    pointer-events: none;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 200' fill='none'%3E%3Cpath d='M0,40 L0,0 L40,0' stroke='var(--c,rgba(150,150,150,0.08))' stroke-width='1'/%3E%3Cpath d='M230,40 L230,0 L190,0' stroke='var(--c,rgba(150,150,150,0.08))' stroke-width='1'/%3E%3Cpath d='M0,160 L0,200 L40,200' stroke='var(--c,rgba(150,150,150,0.08))' stroke-width='1'/%3E%3Cpath d='M230,160 L230,200 L190,200' stroke='var(--c,rgba(150,150,150,0.08))' stroke-width='1'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+  }
+  /* Can't use CSS var in SVG data URI, so use a pseudo with actual accent */
+  .body-light.body-bg-a::before {
+    opacity: 1;
+    background-image: none;
+    border-image: none;
+    background:
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 0 0 / 1px 30px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 0 0 / 30px 1px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 100% 0 / 1px 30px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 100% 0 / 30px 1px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 0 100% / 1px 30px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 0 100% / 30px 1px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 100% 100% / 1px 30px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 100% 100% / 30px 1px no-repeat;
+    opacity: 0.12;
+  }
+  .body-dark.body-bg-a::before {
+    opacity: 1;
+    background-image: none;
+    background:
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 0 0 / 1px 30px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 0 0 / 30px 1px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 100% 0 / 1px 30px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 100% 0 / 30px 1px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 0 100% / 1px 30px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 0 100% / 30px 1px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 100% 100% / 1px 30px no-repeat,
+      linear-gradient(var(--card-accent, #888), var(--card-accent, #888)) 100% 100% / 30px 1px no-repeat;
+    opacity: 0.18;
+  }
+
+  /* B: Radial vignette — faint accent glow from centre */
+  .body-light.body-bg-b {
+    background: radial-gradient(ellipse at 50% 30%, var(--card-accent-faint, rgba(0,0,0,0.03)) 0%, #fff 70%);
+  }
+  .body-dark.body-bg-b {
+    background: radial-gradient(ellipse at 50% 30%, var(--card-accent-faint, rgba(255,255,255,0.03)) 0%, #111114 70%);
+  }
+
+  /* C: Diagonal pinstripe — ultra-fine repeating accent lines */
+  .body-bg-c::before {
+    content: '';
+    position: absolute;
+    inset: 0; z-index: 0;
+    pointer-events: none;
+  }
+  .body-light.body-bg-c::before {
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 8px,
+      var(--card-accent-faint, rgba(0,0,0,0.03)) 8px,
+      var(--card-accent-faint, rgba(0,0,0,0.03)) 9px
+    );
+    opacity: 0.5;
+  }
+  .body-dark.body-bg-c::before {
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 8px,
+      var(--card-accent-faint, rgba(255,255,255,0.03)) 8px,
+      var(--card-accent-faint, rgba(255,255,255,0.03)) 9px
+    );
+    opacity: 0.6;
+  }
+
+  /* D: Large faint accent initial — the card type letter watermark */
+  .body-bg-d::before {
+    content: attr(data-watermark);
+    position: absolute;
+    right: -5px; bottom: 10px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 90px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--card-accent, #888);
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .body-dark.body-bg-d::before {
+    opacity: 0.06;
+  }
+
+  /* (Engine oversized text removed — replaced by heat map illustration) */
+
+  /* ── Info Row: two-column layout ── */
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    margin-top: 6px;
+    gap: 8px;
+  }
+  .info-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+  }
+  .info-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 0;
+    text-align: right;
+  }
+
+  /* ── Avatar ── */
+  .avatar-wrap {
+    position: relative;
+  }
+  /* Curved accent arc under the avatar circle */
+  .avatar-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: -10px; left: 50%;
+    transform: translateX(-50%);
+    width: 66px; height: 24px;
+    border-bottom: 2.5px solid var(--card-accent, #888);
+    border-radius: 0 0 50% 50%;
+    opacity: 0.85;
+    pointer-events: none;
+  }
+  .avatar {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .avatar-ring {
+    position: absolute; inset: -3px;
+    border-radius: 50%;
+    border: 3px solid;
+  }
+  .avatar-inner {
+    width: 94px; height: 94px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 900;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+  .avatar-inner img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  /* ── Text (light theme) ── */
+  .body-light .name {
+    font-size: 14px; font-weight: 900;
+    color: #141a14; letter-spacing: 0.3px;
+  }
+  .body-light .handle {
+    font-size: 7px; font-weight: 800;
+    margin-top: 3px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    background: var(--card-accent, #888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    padding: 0 2px;
+  }
+  .body-light .handle::before {
+    content: '';
+    position: absolute;
+    left: -6px; right: -6px;
+    top: 50%; height: 1px;
+    background: var(--card-accent, #888);
+    opacity: 0.2;
+  }
+  .body-light .milestone {
+    font-size: 7px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .body-light .tagline {
+    font-size: 8px; font-weight: 400;
+    color: #8c948c; font-style: italic;
+    margin-top: 3px;
+    line-height: 1.5;
+    min-height: 24px;
+  }
+  .body-light .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 8px;
+    margin-top: 6px;
+    border-top: 1px solid var(--card-accent-faint, rgba(0,0,0,0.08));
+  }
+  .body-light .f-brand {
+    font-size: 5.5px; font-weight: 800; letter-spacing: 2.5px;
+    text-transform: uppercase; color: #ccc;
+  }
+  .body-light .f-date {
+    font-size: 6px; font-weight: 600; letter-spacing: 0.5px;
+    color: #ccc; font-variant-numeric: tabular-nums;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── Text (dark theme) ── */
+  .body-dark .name {
+    font-size: 14px; font-weight: 900;
+    color: #fff; letter-spacing: 0.3px;
+  }
+  .body-dark .handle {
+    font-size: 7px; font-weight: 800;
+    margin-top: 3px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    background: var(--card-accent, #888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+    padding: 0 2px;
+  }
+  .body-dark .handle::before {
+    content: '';
+    position: absolute;
+    left: -6px; right: -6px;
+    top: 50%; height: 1px;
+    background: var(--card-accent, #888);
+    opacity: 0.3;
+  }
+  .body-dark .milestone {
+    font-size: 7px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .body-dark .tagline {
+    font-size: 8px; font-weight: 400;
+    color: rgba(255,255,255,0.3); font-style: italic;
+    margin-top: 3px;
+    line-height: 1.5;
+    min-height: 24px;
+  }
+  .body-dark .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 8px;
+    margin-top: 6px;
+    border-top: 1px solid var(--card-accent-faint, rgba(255,255,255,0.06));
+  }
+  .body-dark .f-brand {
+    font-size: 5.5px; font-weight: 800; letter-spacing: 2.5px;
+    text-transform: uppercase; color: rgba(255,255,255,0.15);
+  }
+  .body-dark .f-date {
+    font-size: 6px; font-weight: 600; letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.15); font-variant-numeric: tabular-nums;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── Serial Number ── */
+  .f-serial {
+    font-size: 5px; font-weight: 600;
+    letter-spacing: 1.5px;
+    font-family: 'DM Mono', monospace;
+    opacity: 0.35;
+  }
+  .body-light .f-serial { color: #999; }
+  .body-dark .f-serial { color: rgba(255,255,255,0.25); }
+
+  /* ── Form dots ── */
+  .form-dots {
+    display: flex; gap: 4px;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .fd {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 900; color: #fff;
+    background: rgba(255,255,255,0.18);
+  }
+
+  /* ── Pair labels ── */
+  .pair-label {
+    font-size: 7px; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; color: rgba(255,255,255,0.08);
+    width: 100%;
+    margin-top: 10px; margin-bottom: -6px;
+    text-align: center;
+  }
+
+  .theme-pair {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+</style>
+</head>
+<body>
+
+<h1>MyFootball — TCG v4.9</h1>
+<p class="page-sub">Compact CZ · title overlaps avatar · illustrations in body · photo avatars</p>
+
+
+<!-- ════════════════════════════════════════════════════════
+     MVP — Light & Dark
+     ════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">MVP</div>
+    <div class="section-name">Man of the Match</div>
+    <div class="section-desc">Radial glow behind title. Crown watermark. ELITE grade stamp.</div>
+  </div>
+  <div class="row">
+    <div class="theme-pair">
+      <div class="pair-label">Light</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #d4a017; --card-accent-faint: rgba(212,160,23,0.15);">
+          <div class="cz" data-honor="mvp">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #2c2040 0%, #1a1028 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #d4a017;"></div>
+            <div class="cz-watermark">👑</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #d4a017;">MVP</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #d4a017;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(212,160,23,0.12), rgba(212,160,23,0.04)); color: #b8880f;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-elite">ELITE</div>
+            </div>
+            <div data-honor="mvp" class="body body-light body-bg-a">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #d4a017;">MAN OF THE MATCH</div>
+                <div class="tagline">No debate needed.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">XAJ-I0Y-07</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pair">
+      <div class="pair-label">Dark</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #d4a017; --card-accent-faint: rgba(212,160,23,0.20);">
+          <div class="cz" data-honor="mvp">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #2c2040 0%, #1a1028 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #d4a017;"></div>
+            <div class="cz-watermark">👑</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #d4a017;">MVP</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #d4a017;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(212,160,23,0.15), rgba(212,160,23,0.05)); color: #d4a017;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-elite">ELITE</div>
+            </div>
+            <div data-honor="mvp" class="body body-dark body-bg-a">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #d4a017;">MAN OF THE MATCH</div>
+                <div class="tagline">No debate needed.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">6DP-BHS-07</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     THE WALL — Light & Dark
+     ════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">THE WALL</div>
+    <div class="section-name">Best Defender</div>
+    <div class="section-desc">Shield watermark. Teal glow. Deep green zone.</div>
+  </div>
+  <div class="row">
+    <div class="theme-pair">
+      <div class="pair-label">Light</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #2dd4bf; --card-accent-faint: rgba(45,212,191,0.15);">
+          <div class="cz" data-honor="wall">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #0d3b35 0%, #061e1a 100%);"></div>
+            <div class="cz-linen"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #2dd4bf;"></div>
+            <div class="cz-watermark">🛡️</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #2dd4bf;">THE WALL</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #2dd4bf;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(45,212,191,0.12), rgba(45,212,191,0.04)); color: #1a8a7a;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-solid">SOLID</div>
+            </div>
+            <div data-honor="wall" class="body body-light body-bg-b">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #1a9e8f;">BEST DEFENDER</div>
+                <div class="tagline">You read the pass before it's played.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">AHX-THV-05</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pair">
+      <div class="pair-label">Dark</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #2dd4bf; --card-accent-faint: rgba(45,212,191,0.20);">
+          <div class="cz" data-honor="wall">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #0d3b35 0%, #061e1a 100%);"></div>
+            <div class="cz-linen"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #2dd4bf;"></div>
+            <div class="cz-watermark">🛡️</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #2dd4bf;">THE WALL</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #2dd4bf;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(45,212,191,0.15), rgba(45,212,191,0.05)); color: #2dd4bf;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-solid">SOLID</div>
+            </div>
+            <div data-honor="wall" class="body body-dark body-bg-b">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #2dd4bf;">BEST DEFENDER</div>
+                <div class="tagline">You read the pass before it's played.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">3A3-ZMF-05</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     THE ARCHITECT — Light & Dark
+     ════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">THE ARCHITECT</div>
+    <div class="section-name">Mastermind</div>
+    <div class="section-desc">Compass watermark. Purple glow. PERFECT grade — the rarest stamp.</div>
+  </div>
+  <div class="row">
+    <div class="theme-pair">
+      <div class="pair-label">Light</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #9b59b6; --card-accent-faint: rgba(155,89,182,0.15);">
+          <div class="cz" data-honor="architect">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #2a1540 0%, #150a28 100%);"></div>
+            <div class="cz-stipple"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #9b59b6;"></div>
+            <div class="cz-watermark">🧭</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #c084e0;">THE<br>ARCHITECT</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #9b59b6;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(155,89,182,0.12), rgba(155,89,182,0.04)); color: #7a3f9a;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-perfect">PERFECT</div>
+            </div>
+            <div data-honor="architect" class="body body-light body-bg-c">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #9b59b6;">MASTERMIND</div>
+                <div class="tagline">They played football. You conducted it.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">8MD-D4V-07</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pair">
+      <div class="pair-label">Dark</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #9b59b6; --card-accent-faint: rgba(155,89,182,0.20);">
+          <div class="cz" data-honor="architect">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #2a1540 0%, #150a28 100%);"></div>
+            <div class="cz-stipple"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #9b59b6;"></div>
+            <div class="cz-watermark">🧭</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #c084e0;">THE<br>ARCHITECT</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #9b59b6;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(155,89,182,0.15), rgba(155,89,182,0.05)); color: #c084e0;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-perfect">PERFECT</div>
+            </div>
+            <div data-honor="architect" class="body body-dark body-bg-c">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #c084e0;">MASTERMIND</div>
+                <div class="tagline">They played football. You conducted it.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">30T-9NT-07</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     THE FINISHER — Light & Dark
+     ════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">THE FINISHER</div>
+    <div class="section-name">Top Scorer</div>
+    <div class="section-desc">Crosshair watermark. Red glow. Dark red zone.</div>
+  </div>
+  <div class="row">
+    <div class="theme-pair">
+      <div class="pair-label">Light</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #e63946; --card-accent-faint: rgba(230,57,70,0.15);">
+          <div class="cz" data-honor="finisher">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #3d0a10 0%, #200508 100%);"></div>
+            <div class="cz-brushed"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #e63946;"></div>
+            <div class="cz-watermark">🎯</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #ff6b7a;">THE<br>FINISHER</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #e63946;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(230,57,70,0.12), rgba(230,57,70,0.04)); color: #c02030;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-solid">SOLID</div>
+            </div>
+            <div data-honor="finisher" class="body body-light body-bg-d" data-watermark="F">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #e63946;">TOP SCORER</div>
+                <div class="tagline">One chance is all you needed.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">3W5-UZB-11</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pair">
+      <div class="pair-label">Dark</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #e63946; --card-accent-faint: rgba(230,57,70,0.20);">
+          <div class="cz" data-honor="finisher">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #3d0a10 0%, #200508 100%);"></div>
+            <div class="cz-brushed"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #e63946;"></div>
+            <div class="cz-watermark">🎯</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #ff6b7a;">THE<br>FINISHER</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #e63946;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(230,57,70,0.15), rgba(230,57,70,0.05)); color: #ff6b7a;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-solid">SOLID</div>
+            </div>
+            <div data-honor="finisher" class="body body-dark body-bg-d" data-watermark="F">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #ff6b7a;">TOP SCORER</div>
+                <div class="tagline">One chance is all you needed.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">IKC-IDK-11</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     THE ENGINE — Light & Dark
+     ════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">THE ENGINE</div>
+    <div class="section-name">Relentless Runner</div>
+    <div class="section-desc">Bolt watermark. Orange glow. First to press, last to stop.</div>
+  </div>
+  <div class="row">
+    <div class="theme-pair">
+      <div class="pair-label">Light</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #f97316; --card-accent-faint: rgba(249,115,22,0.15);">
+          <div class="cz" data-honor="engine">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #3d1d05 0%, #1e0e02 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #f97316;"></div>
+            <div class="cz-watermark">⚡</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #ffb366;">THE ENGINE</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #f97316;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(249,115,22,0.12), rgba(249,115,22,0.04)); color: #c05a10;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-outstanding">OUTSTANDING</div>
+            </div>
+            <div data-honor="engine" class="body body-light body-bg-a">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #f97316;">RELENTLESS RUNNER</div>
+                <div class="tagline">Legs that don't quit. Lungs that don't lie.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">WNN-HJ7-05</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pair">
+      <div class="pair-label">Dark</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #f97316; --card-accent-faint: rgba(249,115,22,0.20);">
+          <div class="cz" data-honor="engine">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #3d1d05 0%, #1e0e02 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #f97316;"></div>
+            <div class="cz-watermark">⚡</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #ffb366;">THE ENGINE</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #f97316;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(249,115,22,0.05)); color: #ffb366;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-outstanding">OUTSTANDING</div>
+            </div>
+            <div data-honor="engine" class="body body-dark body-bg-a">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #ffb366;">RELENTLESS RUNNER</div>
+                <div class="tagline">Legs that don't quit. Lungs that don't lie.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">XVG-0FN-05</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     3-WIN STREAK — Light & Dark
+     ════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">ON FIRE</div>
+    <div class="section-name">3-Win Streak</div>
+    <div class="section-desc">Fire watermark. Diagonal stripes. Bright red zone. W dots as hero.</div>
+  </div>
+  <div class="row">
+    <div class="theme-pair">
+      <div class="pair-label">Light</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #e63946; --card-accent-faint: rgba(230,57,70,0.15);">
+          <div class="cz" data-honor="onfire">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #e63946 0%, #b82030 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-diag"></div>
+            <div class="cz-watermark">🔥</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #fff;">ON FIRE</div>
+            </div>
+          </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+              <div class="avatar-wrap">
+                <div class="avatar">
+                  <div class="avatar-ring" style="border-color: #e63946;"></div>
+                  <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(230,57,70,0.12), rgba(230,57,70,0.04)); color: #c02030;"><img src="mbappe.webp" alt=""></div>
+                </div>
+              </div>
+              <div class="stamp stamp-none">—</div>
+            </div>
+          <div data-honor="onfire" class="body body-light body-bg-b">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #e63946;">3-WIN STREAK</div>
+                <div class="tagline">Win. Win. Win. Keep going.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">9XU-Y41-07</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pair">
+      <div class="pair-label">Dark</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #e63946; --card-accent-faint: rgba(230,57,70,0.20);">
+          <div class="cz" data-honor="onfire">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #e63946 0%, #b82030 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-diag"></div>
+            <div class="cz-watermark">🔥</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #fff;">ON FIRE</div>
+            </div>
+          </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+              <div class="avatar-wrap">
+                <div class="avatar">
+                  <div class="avatar-ring" style="border-color: #e63946;"></div>
+                  <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(230,57,70,0.15), rgba(230,57,70,0.05)); color: #ff6b7a;"><img src="mbappe.webp" alt=""></div>
+                </div>
+              </div>
+              <div class="stamp stamp-none">—</div>
+            </div>
+          <div data-honor="onfire" class="body body-dark body-bg-b">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #ff6b7a;">3-WIN STREAK</div>
+                <div class="tagline">Win. Win. Win. Keep going.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">IBL-JH7-07</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     5-WIN STREAK — Light & Dark
+     ════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">UNSTOPPABLE</div>
+    <div class="section-name">5-Win Streak</div>
+    <div class="section-desc">Deeper gradient. 5 W dots. Diagonal stripes.</div>
+  </div>
+  <div class="row">
+    <div class="theme-pair">
+      <div class="pair-label">Light</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #e63946; --card-accent-faint: rgba(230,57,70,0.15);">
+          <div class="cz" data-honor="unstoppable">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #e63946 0%, #6b0000 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-diag"></div>
+            <div class="cz-watermark">🔥</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #fff;">UNSTOPPABLE</div>
+            </div>
+          </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+              <div class="avatar-wrap">
+                <div class="avatar">
+                  <div class="avatar-ring" style="border-color: #e63946;"></div>
+                  <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(230,57,70,0.12), rgba(230,57,70,0.04)); color: #c02030;"><img src="mbappe.webp" alt=""></div>
+                </div>
+              </div>
+              <div class="stamp stamp-none">—</div>
+            </div>
+          <div data-honor="unstoppable" class="body body-light body-bg-c">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #e63946;">5-WIN STREAK</div>
+                <div class="tagline">Five straight. At this point, it's personal.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">5LX-O6Q-07</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pair">
+      <div class="pair-label">Dark</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #e63946; --card-accent-faint: rgba(230,57,70,0.20);">
+          <div class="cz" data-honor="unstoppable">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #e63946 0%, #6b0000 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-diag"></div>
+            <div class="cz-watermark">🔥</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #fff;">UNSTOPPABLE</div>
+            </div>
+          </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+              <div class="avatar-wrap">
+                <div class="avatar">
+                  <div class="avatar-ring" style="border-color: #e63946;"></div>
+                  <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(230,57,70,0.15), rgba(230,57,70,0.05)); color: #ff6b7a;"><img src="mbappe.webp" alt=""></div>
+                </div>
+              </div>
+              <div class="stamp stamp-none">—</div>
+            </div>
+          <div data-honor="unstoppable" class="body body-dark body-bg-c">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #ff6b7a;">5-WIN STREAK</div>
+                <div class="tagline">Five straight. At this point, it's personal.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">JIU-JV6-07</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     THE DEBUT — Light & Dark
+     ════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">THE ROOKIE</div>
+    <div class="section-name">Match Nº 001</div>
+    <div class="section-desc">Star watermark. Bright green zone. First match milestone.</div>
+  </div>
+  <div class="row">
+    <div class="theme-pair">
+      <div class="pair-label">Light</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #1a9952; --card-accent-faint: rgba(26,153,82,0.15);">
+          <div class="cz" data-honor="rookie">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #1a9952 0%, #0e6b38 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #40d88a;"></div>
+            <div class="cz-watermark">⭐</div>
+            <div class="top-row">
+              <div class="band-title">THE ROOKIE</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span></div>
+                <div class="avatar-wrap">
+              <div class="avatar">
+                <div class="avatar-ring" style="border-color: #1a9952;"></div>
+                <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(26,153,82,0.12), rgba(26,153,82,0.04)); color: #10703a;"><img src="mbappe.webp" alt=""></div>
+                </div>
+                </div>
+              <div class="stamp stamp-none">—</div>
+            </div>
+          <div data-honor="rookie" class="body body-light body-bg-d" data-watermark="R">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #1a9952;">MATCH Nº 001</div>
+                <div class="tagline">First of many. Remember this one.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">OH9-SDB-07</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pair">
+      <div class="pair-label">Dark</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #1a9952; --card-accent-faint: rgba(26,153,82,0.20);">
+          <div class="cz" data-honor="rookie">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #1a9952 0%, #0e6b38 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #40d88a;"></div>
+            <div class="cz-watermark">⭐</div>
+            <div class="top-row">
+              <div class="band-title">THE ROOKIE</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span></div>
+                <div class="avatar-wrap">
+              <div class="avatar">
+                <div class="avatar-ring" style="border-color: #1a9952;"></div>
+                <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(26,153,82,0.15), rgba(26,153,82,0.05)); color: #40d88a;"><img src="mbappe.webp" alt=""></div>
+                </div>
+                </div>
+              <div class="stamp stamp-none">—</div>
+            </div>
+          <div data-honor="rookie" class="body body-dark body-bg-d" data-watermark="R">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #40d88a;">MATCH Nº 001</div>
+                <div class="tagline">First of many. Remember this one.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">DW2-PCN-07</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     MATCH MILESTONES — Veteran / Legend / Centurion
+     ════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">MATCH MILESTONES</div>
+    <div class="section-name">Veteran → Legend → Centurion</div>
+    <div class="section-desc">Colours from the app's ExperienceBadge system. Silver → Gold → Purple. Stars scale with milestone.</div>
+  </div>
+  <div class="row">
+
+    <!-- THE VETERAN — 25 matches — Silver -->
+    <div class="theme-pair">
+      <div class="pair-label">Veteran · Light</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #8c8c99; --card-accent-faint: rgba(140,140,153,0.15);">
+          <div class="cz" data-honor="veteran">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #2a2a30 0%, #18181c 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #8c8c99;"></div>
+            <div class="cz-watermark">🏅</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #8c8c99;">THE<br>VETERAN</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star" style="color: #8c8c99;">★</span><span class="star" style="color: #8c8c99;">★</span><span class="star" style="color: #8c8c99;">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #8c8c99;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(140,140,153,0.12), rgba(140,140,153,0.04)); color: #6a6a75;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-none">—</div>
+            </div>
+            <div data-honor="veteran" class="body body-light body-bg-a">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #8c8c99;">MATCH Nº 025</div>
+                <div class="tagline">25 matches deep. You've earned your stripes.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">9T8-4AZ-00</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THE VETERAN — Dark -->
+    <div class="theme-pair">
+      <div class="pair-label">Veteran · Dark</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #8c8c99; --card-accent-faint: rgba(140,140,153,0.20);">
+          <div class="cz" data-honor="veteran">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #2a2a30 0%, #18181c 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #8c8c99;"></div>
+            <div class="cz-watermark">🏅</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #a0a0ad;">THE<br>VETERAN</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star" style="color: #8c8c99;">★</span><span class="star" style="color: #8c8c99;">★</span><span class="star" style="color: #8c8c99;">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #8c8c99;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(140,140,153,0.15), rgba(140,140,153,0.05)); color: #a0a0ad;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-none">—</div>
+            </div>
+            <div data-honor="veteran" class="body body-dark body-bg-a">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #a0a0ad;">MATCH Nº 025</div>
+                <div class="tagline">25 matches deep. You've earned your stripes.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">YTJ-XEP-00</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THE LEGEND — 50 matches — Gold -->
+    <div class="theme-pair">
+      <div class="pair-label">Legend · Light</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #d9a621; --card-accent-faint: rgba(217,166,33,0.15);">
+          <div class="cz" data-honor="legend">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #3d2e08 0%, #1e1704 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #d9a621;"></div>
+            <div class="cz-watermark">🏆</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #d9a621;">THE<br>LEGEND</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #d9a621;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(217,166,33,0.12), rgba(217,166,33,0.04)); color: #a07a10;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-none">—</div>
+            </div>
+            <div data-honor="legend" class="body body-light body-bg-a">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #d9a621;">MATCH Nº 050</div>
+                <div class="tagline">Half a hundred and still hungry.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">Q85-JSG-00</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THE LEGEND — Dark -->
+    <div class="theme-pair">
+      <div class="pair-label">Legend · Dark</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #d9a621; --card-accent-faint: rgba(217,166,33,0.20);">
+          <div class="cz" data-honor="legend">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #3d2e08 0%, #1e1704 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #d9a621;"></div>
+            <div class="cz-watermark">🏆</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #f0c040;">THE<br>LEGEND</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #d9a621;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(217,166,33,0.15), rgba(217,166,33,0.05)); color: #f0c040;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-none">—</div>
+            </div>
+            <div data-honor="legend" class="body body-dark body-bg-a">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #f0c040;">MATCH Nº 050</div>
+                <div class="tagline">Half a hundred and still hungry.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">65K-XVF-00</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THE CENTURION — 100 matches — Purple -->
+    <div class="theme-pair">
+      <div class="pair-label">Centurion · Light</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #9933cc; --card-accent-faint: rgba(153,51,204,0.15);">
+          <div class="cz" data-honor="centurion">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #2a1040 0%, #150820 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #9933cc;"></div>
+            <div class="cz-watermark">✨</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #cc80ff;">THE<br>CENTURION</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star" style="color: #cc80ff;">★</span><span class="star" style="color: #cc80ff;">★</span><span class="star" style="color: #cc80ff;">★</span><span class="star" style="color: #cc80ff;">★</span><span class="star" style="color: #cc80ff;">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #9933cc;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(153,51,204,0.12), rgba(153,51,204,0.04)); color: #7a28a3;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-none">—</div>
+            </div>
+            <div data-honor="centurion" class="body body-light body-bg-a">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #9933cc;">MATCH Nº 100</div>
+                <div class="tagline">A hundred matches. That's not a stat. That's a lifestyle.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">1T2-TAL-00</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THE CENTURION — Dark -->
+    <div class="theme-pair">
+      <div class="pair-label">Centurion · Dark</div>
+      <div class="card-wrap">
+        <div class="card" style="--card-accent: #9933cc; --card-accent-faint: rgba(153,51,204,0.20);">
+          <div class="cz" data-honor="centurion">
+            <div class="cz-bg" style="background: linear-gradient(135deg, #2a1040 0%, #150820 100%);"></div>
+            <div class="cz-grain"></div>
+            <div class="cz-dots"></div>
+            <div class="cz-glow" style="background: #9933cc;"></div>
+            <div class="cz-watermark">✨</div>
+            <div class="top-row">
+              <div class="band-title" style="color: #d9a0ff;">THE<br>CENTURION</div>
+            </div>
+            </div>
+            <div class="avatar-row">
+              <div class="stars"><span class="star" style="color: #cc80ff;">★</span><span class="star" style="color: #cc80ff;">★</span><span class="star" style="color: #cc80ff;">★</span><span class="star" style="color: #cc80ff;">★</span><span class="star" style="color: #cc80ff;">★</span></div>
+                <div class="avatar-wrap">
+                  <div class="avatar">
+                    <div class="avatar-ring" style="border-color: #9933cc;"></div>
+                    <div class="avatar-inner" style="background: linear-gradient(135deg, rgba(153,51,204,0.15), rgba(153,51,204,0.05)); color: #d9a0ff;"><img src="mbappe.webp" alt=""></div>
+                  </div>
+                </div>
+              <div class="stamp stamp-none">—</div>
+            </div>
+            <div data-honor="centurion" class="body body-dark body-bg-a">
+              <div class="body-illus"></div>
+                        <div class="info-row">
+              <div class="info-left">
+                <div class="name">Mbappé</div>
+                <div class="handle">@k.mbappe</div>
+              </div>
+              <div class="info-right">
+                <div class="milestone" style="color: #d9a0ff;">MATCH Nº 100</div>
+                <div class="tagline">A hundred matches. That's not a stat. That's a lifestyle.</div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="f-brand">MyFootball</span>
+              <span class="f-serial">A75-3LC-00</span>
+              <span class="f-date">30.03.26</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+</body>
+</html>
