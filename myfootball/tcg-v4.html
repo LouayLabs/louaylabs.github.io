@@ -86,12 +86,10 @@
   }
   .cz-bg { position: absolute; inset: 0; }
   .cz-dots {
-    position: absolute; inset: 0; opacity: 0.06;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='8' cy='8' r='1' fill='%23fff'/%3E%3C/svg%3E");
+    display: none;
   }
   .cz-diag {
-    position: absolute; inset: 0; opacity: 0.04;
-    background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(255,255,255,1) 3px, rgba(255,255,255,1) 4px);
+    display: none;
   }
 
   /* Radial glow behind title */
@@ -107,13 +105,7 @@
 
   /* Faint background icon / watermark */
   .cz-watermark {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 80px;
-    opacity: 0.04;
-    z-index: 0;
-    pointer-events: none;
+    display: none;
   }
 
   /* ── Top Row ── */
@@ -141,6 +133,20 @@
     min-width: 32px;
     font-family: 'DM Mono', monospace;
     letter-spacing: 0.5px;
+    position: relative;
+    padding: 2px 8px 2px 4px;
+    margin: -6px 0 0 -6px;
+  }
+  /* Corner badge — 4 connected lines at different angles, from left edge to top edge */
+  .player-count::before {
+    content: '';
+    position: absolute;
+    top: -10px; left: -12px;
+    width: 52px; height: 34px;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 34' fill='none'%3E%3Cpath d='M0,20 L18,28 L38,24 L46,8 L52,0' stroke='rgba(255,255,255,0.20)' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
   }
 
   .stars {
@@ -199,19 +205,20 @@
   /* ═══════════════════════════════════════
      HALFWAY LINE — accent-coloured divider
      extending from the avatar ring outward
-     both directions. SVG mask cuts a circular
-     gap so it appears to flow from the ring.
+     both directions to the card edges.
+     SVG mask cuts a circular gap matching
+     the avatar ring exactly.
      ═══════════════════════════════════════ */
   .body::after {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0; left: -14px; right: -14px;
     height: 2.5px; z-index: 2;
     pointer-events: none;
     background-color: var(--card-accent, #888);
     opacity: 0.85;
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 3'%3E%3Cpath d='M0,0 L0,3 L78,3 A37,37 0 0,0 152,3 L230,3 L230,0 L152,0 A37,37 0 0,1 78,0 Z' fill='white'/%3E%3C/svg%3E");
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 3'%3E%3Cpath d='M0,0 L0,3 L78,3 A37,37 0 0,0 152,3 L230,3 L230,0 L152,0 A37,37 0 0,1 78,0 Z' fill='white'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 3'%3E%3Cpath d='M0,0 L0,3 L80,3 A34,34 0 0,0 150,3 L230,3 L230,0 L150,0 A34,34 0 0,1 80,0 Z' fill='white'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 3'%3E%3Cpath d='M0,0 L0,3 L80,3 A34,34 0 0,0 150,3 L230,3 L230,0 L152,0 A34,34 0 0,1 80,0 Z' fill='white'/%3E%3C/svg%3E");
     -webkit-mask-size: 100% 100%;
     mask-size: 100% 100%;
   }
