@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyFootball — TCG 3-Way Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #08080c;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px 200px;
+    gap: 48px;
+  }
+
+  h1 {
+    font-size: 10px; font-weight: 800; letter-spacing: 8px;
+    text-transform: uppercase; color: rgba(255,255,255,0.15);
+  }
+  .page-sub {
+    font-size: 8px; letter-spacing: 3px; color: rgba(255,255,255,0.06);
+    text-transform: uppercase; margin-top: -30px;
+    max-width: 900px; text-align: center; line-height: 1.8;
+  }
+
+  .section {
+    width: 100%; max-width: 1400px;
+  }
+  .section-header {
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .section-number {
+    font-size: 7px; font-weight: 800; letter-spacing: 3px;
+    text-transform: uppercase; color: rgba(255,255,255,0.1);
+  }
+  .section-name {
+    font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.85);
+    margin-top: 3px; letter-spacing: -0.3px;
+  }
+
+  .row {
+    display: flex; flex-wrap: wrap;
+    gap: 24px; align-items: flex-start;
+  }
+
+  .concept-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .concept-label {
+    font-size: 7px; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; color: rgba(255,255,255,0.08);
+    width: 100%;
+    margin-top: 10px; margin-bottom: -6px;
+    text-align: center;
+  }
+
+  /* Divider between concept groups */
+  .group-divider {
+    width: 1px;
+    align-self: stretch;
+    background: rgba(255,255,255,0.04);
+    margin: 0 8px;
+  }
+
+  /* ═══════════════════════════════════════
+     SHARED CARD PARTS
+     ═══════════════════════════════════════ */
+
+  /* ── Colour Zone (shared) ── */
+  .cz {
+    position: relative;
+    padding: 10px 12px 38px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .cz-bg { position: absolute; inset: 0; }
+
+  .cz-dots {
+    position: absolute; inset: 0; opacity: 0.06;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='8' cy='8' r='1' fill='%23fff'/%3E%3C/svg%3E");
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 75%, white 0%, transparent 100%);
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 75%, white 0%, transparent 100%);
+  }
+  .cz-diag {
+    position: absolute; inset: 0; opacity: 0.04;
+    background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(255,255,255,1) 3px, rgba(255,255,255,1) 4px);
+  }
+  .cz-glow {
+    position: absolute;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    width: 160px; height: 80px;
+    border-radius: 50%;
+    filter: blur(30px);
+    opacity: 0.25;
+  }
+  .cz-watermark {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 80px;
+    opacity: 0.04;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .cz::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow:
+      inset 0 0 25px rgba(0,0,0,0.4),
+      inset 0 -10px 20px rgba(0,0,0,0.25),
+      inset 0 2px 6px rgba(255,255,255,0.03);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative; z-index: 2;
+  }
+  .player-count {
+    display: flex; align-items: center; gap: 2px;
+    font-size: 8px; font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    min-width: 32px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  .stars { display: flex; gap: 1px; }
+  .star {
+    font-size: 14px; line-height: 1;
+    color: #f5c542;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+  }
+
+  .stamp {
+    font-size: 5.5px; font-weight: 900; letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 5px;
+    border-radius: 3px;
+    border: 1.5px solid;
+    transform: rotate(2deg);
+    min-width: 32px;
+    text-align: center;
+  }
+  .stamp-solid { color: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.25); }
+  .stamp-outstanding { color: #f5c542; border-color: #f5c542; }
+  .stamp-elite { color: #f5c542; border-color: #f5c542; background: rgba(245,197,66,0.15); }
+  .stamp-perfect { color: #fff; border-color: #ff6b6b; background: #ff6b6b; letter-spacing: 1.5px; }
+  .stamp-none { visibility: hidden; }
+
+  .band {
+    position: relative; z-index: 2;
+    text-align: center;
+    margin-top: 6px;
+  }
+  .band-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 22px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    line-height: 1.05;
+    margin-top: 2px;
+  }
+
+  .form-dots {
+    display: flex; gap: 4px;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .fd {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 900; color: #fff;
+    background: rgba(255,255,255,0.18);
+  }
+
+  /* ── Shared body text ── */
+  .body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 14px 12px;
+    position: relative;
+  }
+  .body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 128px 128px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .avatar-wrap {
+    margin-top: -30px;
+    position: relative; z-index: 3;
+  }
+  .avatar {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .avatar-ring {
+    position: absolute; inset: -3px;
+    border-radius: 50%;
+    border: 2.5px solid;
+  }
+  .avatar-inner {
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 900;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .name {
+    font-size: 14px; font-weight: 900;
+    letter-spacing: 0.3px;
+    margin-top: 6px; position: relative;
+  }
+  .handle {
+    font-size: 7px; font-weight: 500;
+    margin-top: 1px;
+    font-family: 'DM Mono', monospace;
+    position: relative;
+  }
+  .milestone {
+    font-size: 7px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-top: 4px; position: relative;
+  }
+  .tagline {
+    font-size: 8px; font-weight: 400;
+    font-style: italic;
+    text-align: center;
+    padding: 6px 6px 0;
+    line-height: 1.5; position: relative;
+  }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 8px;
+    margin-top: 6px;
+    border-top: 1px solid;
+    position: relative;
+  }
+  .f-brand {
+    font-size: 5.5px; font-weight: 800; letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+  .f-date {
+    font-size: 6px; font-weight: 600; letter-spacing: 0.5px;
+    font-variant-numeric: tabular-nums;
+    font-family: 'DM Mono', monospace;
+  }
+
+
+  /* ═══════════════════════════════════════
+     V2 — ORIGINAL (no border, no texture)
+     ═══════════════════════════════════════ */
+  .card-v2 {
+    width: 230px;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    cursor: default;
+    transition: transform 0.3s ease;
+  }
+  .card-v2:hover { transform: scale(1.03) translateY(-3px); }
+
+  /* v2 has NO body::before texture */
+  .card-v2 .body::before { display: none; }
+
+  /* v2 stars are RTL */
+  .card-v2 .stars { direction: rtl; }
+
+  .card-v2 .body-dark { background: #111114; }
+  .card-v2 .body-dark .name { color: #fff; }
+  .card-v2 .body-dark .handle { color: rgba(255,255,255,0.25); }
+  .card-v2 .body-dark .tagline { color: rgba(255,255,255,0.3); }
+  .card-v2 .body-dark .card-footer { border-color: rgba(255,255,255,0.06); }
+  .card-v2 .body-dark .f-brand { color: rgba(255,255,255,0.15); }
+  .card-v2 .body-dark .f-date { color: rgba(255,255,255,0.15); }
+
+  .card-v2 .body-light { background: #fff; }
+  .card-v2 .body-light .name { color: #141a14; }
+  .card-v2 .body-light .handle { color: #aaa; }
+  .card-v2 .body-light .tagline { color: #8c948c; }
+  .card-v2 .body-light .card-footer { border-color: rgba(0,0,0,0.06); }
+  .card-v2 .body-light .f-brand { color: #ccc; }
+  .card-v2 .body-light .f-date { color: #ccc; }
+
+
+  /* ═══════════════════════════════════════
+     CONCEPT A — ACCENT BORDER
+     ═══════════════════════════════════════ */
+  .card-a {
+    width: 230px;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    cursor: default;
+    transition: transform 0.3s ease;
+    border: 2.5px solid var(--card-accent);
+  }
+  .card-a:hover { transform: scale(1.03) translateY(-3px); }
+
+  .card-a .body-dark { background: #111114; }
+  .card-a .body-dark::before { opacity: 0.045; }
+  .card-a .body-dark .name { color: #fff; }
+  .card-a .body-dark .handle { color: rgba(255,255,255,0.25); }
+  .card-a .body-dark .tagline { color: rgba(255,255,255,0.3); }
+  .card-a .body-dark .card-footer { border-color: var(--card-accent-faint, rgba(255,255,255,0.06)); }
+  .card-a .body-dark .f-brand { color: rgba(255,255,255,0.15); }
+  .card-a .body-dark .f-date { color: rgba(255,255,255,0.15); }
+
+  .card-a .body-light { background: #fff; }
+  .card-a .body-light::before { opacity: 0.03; }
+  .card-a .body-light .name { color: #141a14; }
+  .card-a .body-light .handle { color: #aaa; }
+  .card-a .body-light .tagline { color: #8c948c; }
+  .card-a .body-light .card-footer { border-color: var(--card-accent-faint, rgba(0,0,0,0.06)); }
+  .card-a .body-light .f-brand { color: #ccc; }
+  .card-a .body-light .f-date { color: #ccc; }
+
+
+  /* ═══════════════════════════════════════
+     CONCEPT B — INSET BODY
+     Card bg = gradient. Body floats inside.
+     ═══════════════════════════════════════ */
+  .card-b {
+    width: 230px;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    cursor: default;
+    transition: transform 0.3s ease;
+    border: none;
+  }
+  .card-b:hover { transform: scale(1.03) translateY(-3px); }
+
+  /* Hide cz-bg — the card itself has the gradient */
+  .card-b .cz-bg { display: none; }
+  .card-b .cz { overflow: visible; }
+  .card-b .cz::after { box-shadow: none; }
+
+  .card-b .body {
+    margin: 6px;
+    border-radius: 10px;
+    position: relative;
+    z-index: 2;
+  }
+  .card-b .body-dark { background: #111114; }
+  .card-b .body-dark::before { opacity: 0.045; border-radius: 10px; }
+  .card-b .body-dark .name { color: #fff; }
+  .card-b .body-dark .handle { color: rgba(255,255,255,0.25); }
+  .card-b .body-dark .tagline { color: rgba(255,255,255,0.3); }
+  .card-b .body-dark .card-footer { border-color: var(--card-accent-faint, rgba(255,255,255,0.06)); }
+  .card-b .body-dark .f-brand { color: rgba(255,255,255,0.15); }
+  .card-b .body-dark .f-date { color: rgba(255,255,255,0.15); }
+
+  .card-b .body-light { background: #fff; }
+  .card-b .body-light::before { opacity: 0.03; border-radius: 10px; }
+  .card-b .body-light .name { color: #141a14; }
+  .card-b .body-light .handle { color: #aaa; }
+  .card-b .body-light .tagline { color: #8c948c; }
+  .card-b .body-light .card-footer { border-color: var(--card-accent-faint, rgba(0,0,0,0.06)); }
+  .card-b .body-light .f-brand { color: #ccc; }
+  .card-b .body-light .f-date { color: #ccc; }
+
+</style>
+</head>
+<body>
+
+<h1>MyFootball — TCG 3-Way Comparison</h1>
+<p class="page-sub">V2 (original) · A (accent border) · B (gradient background + inset body)</p>
+
+
+<!-- ════════════════════════════════════════════════════════
+     MVP
+     ════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">MVP</div>
+    <div class="section-name">Man of the Match — ELITE</div>
+  </div>
+
+  <!-- DARK ROW -->
+  <div class="row" style="margin-bottom: 32px;">
+
+    <!-- V2 Dark -->
+    <div class="concept-wrap">
+      <div class="concept-label">V2 · Original · Dark</div>
+      <div class="card-v2">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #2c2040 0%, #1a1028 100%);"></div>
+          <div class="cz-dots"></div>
+          <div class="cz-glow" style="background: #d4a017;"></div>
+          <div class="cz-watermark">👑</div>
+          <div class="top-row">
+            <div class="player-count">7v7</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-elite">ELITE</div>
+          </div>
+          <div class="band"><div class="band-title" style="color: #d4a017;">MVP</div></div>
+        </div>
+        <div class="body body-dark">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #d4a017;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(212,160,23,0.15), rgba(212,160,23,0.05)); color: #d4a017;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #d4a017;">MAN OF THE MATCH</div>
+          <div class="tagline">No debate needed.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-divider"></div>
+
+    <!-- A Dark -->
+    <div class="concept-wrap">
+      <div class="concept-label">A · Accent Border · Dark</div>
+      <div class="card-a" style="--card-accent: #d4a017; --card-accent-faint: rgba(212,160,23,0.10);">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #2c2040 0%, #1a1028 100%);"></div>
+          <div class="cz-dots"></div>
+          <div class="cz-glow" style="background: #d4a017;"></div>
+          <div class="top-row">
+            <div class="player-count">7v7</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-elite">ELITE</div>
+          </div>
+          <div class="band"><div class="band-title" style="color: #d4a017;">MVP</div></div>
+        </div>
+        <div class="body body-dark">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #d4a017;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(212,160,23,0.15), rgba(212,160,23,0.05)); color: #d4a017;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #d4a017;">MAN OF THE MATCH</div>
+          <div class="tagline">No debate needed.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-divider"></div>
+
+    <!-- B Dark -->
+    <div class="concept-wrap">
+      <div class="concept-label">B · Inset Body · Dark</div>
+      <div class="card-b" style="--card-accent-faint: rgba(212,160,23,0.12); background: linear-gradient(135deg, #2c2040 0%, #1a1028 100%);">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #2c2040 0%, #1a1028 100%);"></div>
+          <div class="cz-dots"></div>
+          <div class="cz-glow" style="background: #d4a017;"></div>
+          <div class="top-row">
+            <div class="player-count">7v7</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-elite">ELITE</div>
+          </div>
+          <div class="band"><div class="band-title" style="color: #d4a017;">MVP</div></div>
+        </div>
+        <div class="body body-dark">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #d4a017;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(212,160,23,0.15), rgba(212,160,23,0.05)); color: #d4a017;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #d4a017;">MAN OF THE MATCH</div>
+          <div class="tagline">No debate needed.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LIGHT ROW -->
+  <div class="row">
+
+    <!-- V2 Light -->
+    <div class="concept-wrap">
+      <div class="concept-label">V2 · Original · Light</div>
+      <div class="card-v2">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #2c2040 0%, #1a1028 100%);"></div>
+          <div class="cz-dots"></div>
+          <div class="cz-glow" style="background: #d4a017;"></div>
+          <div class="cz-watermark">👑</div>
+          <div class="top-row">
+            <div class="player-count">7v7</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-elite">ELITE</div>
+          </div>
+          <div class="band"><div class="band-title" style="color: #d4a017;">MVP</div></div>
+        </div>
+        <div class="body body-light">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #d4a017;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(212,160,23,0.12), rgba(212,160,23,0.04)); color: #b8880f;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #d4a017;">MAN OF THE MATCH</div>
+          <div class="tagline">No debate needed.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-divider"></div>
+
+    <!-- A Light -->
+    <div class="concept-wrap">
+      <div class="concept-label">A · Accent Border · Light</div>
+      <div class="card-a" style="--card-accent: #d4a017; --card-accent-faint: rgba(212,160,23,0.15);">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #2c2040 0%, #1a1028 100%);"></div>
+          <div class="cz-dots"></div>
+          <div class="cz-glow" style="background: #d4a017;"></div>
+          <div class="top-row">
+            <div class="player-count">7v7</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-elite">ELITE</div>
+          </div>
+          <div class="band"><div class="band-title" style="color: #d4a017;">MVP</div></div>
+        </div>
+        <div class="body body-light">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #d4a017;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(212,160,23,0.12), rgba(212,160,23,0.04)); color: #b8880f;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #d4a017;">MAN OF THE MATCH</div>
+          <div class="tagline">No debate needed.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-divider"></div>
+
+    <!-- B Light -->
+    <div class="concept-wrap">
+      <div class="concept-label">B · Inset Body · Light</div>
+      <div class="card-b" style="--card-accent-faint: rgba(212,160,23,0.15); background: linear-gradient(135deg, #2c2040 0%, #1a1028 100%);">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #2c2040 0%, #1a1028 100%);"></div>
+          <div class="cz-dots"></div>
+          <div class="cz-glow" style="background: #d4a017;"></div>
+          <div class="top-row">
+            <div class="player-count">7v7</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-elite">ELITE</div>
+          </div>
+          <div class="band"><div class="band-title" style="color: #d4a017;">MVP</div></div>
+        </div>
+        <div class="body body-light">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #d4a017;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(212,160,23,0.12), rgba(212,160,23,0.04)); color: #b8880f;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #d4a017;">MAN OF THE MATCH</div>
+          <div class="tagline">No debate needed.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     THE WALL
+     ════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">THE WALL</div>
+    <div class="section-name">Best Defender — SOLID</div>
+  </div>
+
+  <!-- DARK ROW -->
+  <div class="row" style="margin-bottom: 32px;">
+
+    <!-- V2 Dark -->
+    <div class="concept-wrap">
+      <div class="concept-label">V2 · Original · Dark</div>
+      <div class="card-v2">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #0d3b35 0%, #061e1a 100%);"></div>
+          <div class="cz-dots"></div>
+          <div class="cz-glow" style="background: #2dd4bf;"></div>
+          <div class="cz-watermark">🧱</div>
+          <div class="top-row">
+            <div class="player-count">5v5</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-solid">SOLID</div>
+          </div>
+          <div class="band"><div class="band-title" style="color: #2dd4bf;">THE WALL</div></div>
+        </div>
+        <div class="body body-dark">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #2dd4bf;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(45,212,191,0.15), rgba(45,212,191,0.05)); color: #2dd4bf;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #2dd4bf;">BEST DEFENDER</div>
+          <div class="tagline">Nothing gets past.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-divider"></div>
+
+    <!-- A Dark -->
+    <div class="concept-wrap">
+      <div class="concept-label">A · Accent Border · Dark</div>
+      <div class="card-a" style="--card-accent: #2dd4bf; --card-accent-faint: rgba(45,212,191,0.10);">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #0d3b35 0%, #061e1a 100%);"></div>
+          <div class="cz-dots"></div>
+          <div class="cz-glow" style="background: #2dd4bf;"></div>
+          <div class="top-row">
+            <div class="player-count">5v5</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-solid">SOLID</div>
+          </div>
+          <div class="band"><div class="band-title" style="color: #2dd4bf;">THE WALL</div></div>
+        </div>
+        <div class="body body-dark">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #2dd4bf;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(45,212,191,0.15), rgba(45,212,191,0.05)); color: #2dd4bf;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #2dd4bf;">BEST DEFENDER</div>
+          <div class="tagline">Nothing gets past.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-divider"></div>
+
+    <!-- B Dark -->
+    <div class="concept-wrap">
+      <div class="concept-label">B · Inset Body · Dark</div>
+      <div class="card-b" style="--card-accent-faint: rgba(45,212,191,0.10); background: linear-gradient(135deg, #0d3b35 0%, #061e1a 100%);">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #0d3b35 0%, #061e1a 100%);"></div>
+          <div class="cz-dots"></div>
+          <div class="cz-glow" style="background: #2dd4bf;"></div>
+          <div class="top-row">
+            <div class="player-count">5v5</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-solid">SOLID</div>
+          </div>
+          <div class="band"><div class="band-title" style="color: #2dd4bf;">THE WALL</div></div>
+        </div>
+        <div class="body body-dark">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #2dd4bf;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(45,212,191,0.15), rgba(45,212,191,0.05)); color: #2dd4bf;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #2dd4bf;">BEST DEFENDER</div>
+          <div class="tagline">Nothing gets past.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LIGHT ROW -->
+  <div class="row">
+
+    <!-- V2 Light -->
+    <div class="concept-wrap">
+      <div class="concept-label">V2 · Original · Light</div>
+      <div class="card-v2">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #0d3b35 0%, #061e1a 100%);"></div>
+          <div class="cz-dots"></div>
+          <div class="cz-glow" style="background: #2dd4bf;"></div>
+          <div class="cz-watermark">🧱</div>
+          <div class="top-row">
+            <div class="player-count">5v5</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-solid">SOLID</div>
+          </div>
+          <div class="band"><div class="band-title" style="color: #2dd4bf;">THE WALL</div></div>
+        </div>
+        <div class="body body-light">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #2dd4bf;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(45,212,191,0.12), rgba(45,212,191,0.04)); color: #1a9e8f;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #2dd4bf;">BEST DEFENDER</div>
+          <div class="tagline">Nothing gets past.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-divider"></div>
+
+    <!-- A Light -->
+    <div class="concept-wrap">
+      <div class="concept-label">A · Accent Border · Light</div>
+      <div class="card-a" style="--card-accent: #2dd4bf; --card-accent-faint: rgba(45,212,191,0.12);">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #0d3b35 0%, #061e1a 100%);"></div>
+          <div class="cz-dots"></div>
+          <div class="cz-glow" style="background: #2dd4bf;"></div>
+          <div class="top-row">
+            <div class="player-count">5v5</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-solid">SOLID</div>
+          </div>
+          <div class="band"><div class="band-title" style="color: #2dd4bf;">THE WALL</div></div>
+        </div>
+        <div class="body body-light">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #2dd4bf;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(45,212,191,0.12), rgba(45,212,191,0.04)); color: #1a9e8f;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #2dd4bf;">BEST DEFENDER</div>
+          <div class="tagline">Nothing gets past.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-divider"></div>
+
+    <!-- B Light -->
+    <div class="concept-wrap">
+      <div class="concept-label">B · Inset Body · Light</div>
+      <div class="card-b" style="--card-accent-faint: rgba(45,212,191,0.12); background: linear-gradient(135deg, #0d3b35 0%, #061e1a 100%);">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #0d3b35 0%, #061e1a 100%);"></div>
+          <div class="cz-dots"></div>
+          <div class="cz-glow" style="background: #2dd4bf;"></div>
+          <div class="top-row">
+            <div class="player-count">5v5</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-solid">SOLID</div>
+          </div>
+          <div class="band"><div class="band-title" style="color: #2dd4bf;">THE WALL</div></div>
+        </div>
+        <div class="body body-light">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #2dd4bf;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(45,212,191,0.12), rgba(45,212,191,0.04)); color: #1a9e8f;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #2dd4bf;">BEST DEFENDER</div>
+          <div class="tagline">Nothing gets past.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     ON FIRE
+     ════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">ON FIRE</div>
+    <div class="section-name">Hot Streak — 3W</div>
+  </div>
+
+  <!-- DARK ROW -->
+  <div class="row" style="margin-bottom: 32px;">
+
+    <!-- V2 Dark -->
+    <div class="concept-wrap">
+      <div class="concept-label">V2 · Original · Dark</div>
+      <div class="card-v2">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #e63946 0%, #b82030 100%);"></div>
+          <div class="cz-diag"></div>
+          <div class="cz-watermark">🔥</div>
+          <div class="top-row">
+            <div class="player-count" style="color: rgba(255,255,255,0.5);">7v7</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-none">—</div>
+          </div>
+          <div class="band">
+            <div class="band-title" style="color: #fff;">ON FIRE</div>
+            <div class="form-dots" style="margin-top: 6px;"><div class="fd">W</div><div class="fd">W</div><div class="fd">W</div></div>
+          </div>
+        </div>
+        <div class="body body-dark">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #e63946;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(230,57,70,0.2), rgba(230,57,70,0.08)); color: #e63946;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #ff6b6b;">HOT STREAK</div>
+          <div class="tagline">Can't stop, won't stop.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-divider"></div>
+
+    <!-- A Dark -->
+    <div class="concept-wrap">
+      <div class="concept-label">A · Accent Border · Dark</div>
+      <div class="card-a" style="--card-accent: #e63946; --card-accent-faint: rgba(230,57,70,0.10);">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #e63946 0%, #b82030 100%);"></div>
+          <div class="cz-diag"></div>
+          <div class="top-row">
+            <div class="player-count" style="color: rgba(255,255,255,0.5);">7v7</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-none">—</div>
+          </div>
+          <div class="band">
+            <div class="band-title" style="color: #fff;">ON FIRE</div>
+            <div class="form-dots" style="margin-top: 6px;"><div class="fd">W</div><div class="fd">W</div><div class="fd">W</div></div>
+          </div>
+        </div>
+        <div class="body body-dark">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #e63946;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(230,57,70,0.2), rgba(230,57,70,0.08)); color: #e63946;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #ff6b6b;">HOT STREAK</div>
+          <div class="tagline">Can't stop, won't stop.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-divider"></div>
+
+    <!-- B Dark -->
+    <div class="concept-wrap">
+      <div class="concept-label">B · Inset Body · Dark</div>
+      <div class="card-b" style="--card-accent-faint: rgba(230,57,70,0.10); background: linear-gradient(135deg, #e63946 0%, #b82030 100%);">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #e63946 0%, #b82030 100%);"></div>
+          <div class="cz-diag"></div>
+          <div class="top-row">
+            <div class="player-count" style="color: rgba(255,255,255,0.5);">7v7</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-none">—</div>
+          </div>
+          <div class="band">
+            <div class="band-title" style="color: #fff;">ON FIRE</div>
+            <div class="form-dots" style="margin-top: 6px;"><div class="fd">W</div><div class="fd">W</div><div class="fd">W</div></div>
+          </div>
+        </div>
+        <div class="body body-dark">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #e63946;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(230,57,70,0.2), rgba(230,57,70,0.08)); color: #e63946;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #ff6b6b;">HOT STREAK</div>
+          <div class="tagline">Can't stop, won't stop.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LIGHT ROW -->
+  <div class="row">
+
+    <!-- V2 Light -->
+    <div class="concept-wrap">
+      <div class="concept-label">V2 · Original · Light</div>
+      <div class="card-v2">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #e63946 0%, #b82030 100%);"></div>
+          <div class="cz-diag"></div>
+          <div class="cz-watermark">🔥</div>
+          <div class="top-row">
+            <div class="player-count" style="color: rgba(255,255,255,0.5);">7v7</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-none">—</div>
+          </div>
+          <div class="band">
+            <div class="band-title" style="color: #fff;">ON FIRE</div>
+            <div class="form-dots" style="margin-top: 6px;"><div class="fd">W</div><div class="fd">W</div><div class="fd">W</div></div>
+          </div>
+        </div>
+        <div class="body body-light">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #e63946;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(230,57,70,0.15), rgba(230,57,70,0.05)); color: #c0202f;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #e63946;">HOT STREAK</div>
+          <div class="tagline">Can't stop, won't stop.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-divider"></div>
+
+    <!-- A Light -->
+    <div class="concept-wrap">
+      <div class="concept-label">A · Accent Border · Light</div>
+      <div class="card-a" style="--card-accent: #e63946; --card-accent-faint: rgba(230,57,70,0.12);">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #e63946 0%, #b82030 100%);"></div>
+          <div class="cz-diag"></div>
+          <div class="top-row">
+            <div class="player-count" style="color: rgba(255,255,255,0.5);">7v7</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-none">—</div>
+          </div>
+          <div class="band">
+            <div class="band-title" style="color: #fff;">ON FIRE</div>
+            <div class="form-dots" style="margin-top: 6px;"><div class="fd">W</div><div class="fd">W</div><div class="fd">W</div></div>
+          </div>
+        </div>
+        <div class="body body-light">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #e63946;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(230,57,70,0.15), rgba(230,57,70,0.05)); color: #c0202f;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #e63946;">HOT STREAK</div>
+          <div class="tagline">Can't stop, won't stop.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-divider"></div>
+
+    <!-- B Light -->
+    <div class="concept-wrap">
+      <div class="concept-label">B · Inset Body · Light</div>
+      <div class="card-b" style="--card-accent-faint: rgba(230,57,70,0.12); background: linear-gradient(135deg, #e63946 0%, #b82030 100%);">
+        <div class="cz">
+          <div class="cz-bg" style="background: linear-gradient(135deg, #e63946 0%, #b82030 100%);"></div>
+          <div class="cz-diag"></div>
+          <div class="top-row">
+            <div class="player-count" style="color: rgba(255,255,255,0.5);">7v7</div>
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            <div class="stamp stamp-none">—</div>
+          </div>
+          <div class="band">
+            <div class="band-title" style="color: #fff;">ON FIRE</div>
+            <div class="form-dots" style="margin-top: 6px;"><div class="fd">W</div><div class="fd">W</div><div class="fd">W</div></div>
+          </div>
+        </div>
+        <div class="body body-light">
+          <div class="avatar-wrap"><div class="avatar"><div class="avatar-ring" style="border-color: #e63946;"></div><div class="avatar-inner" style="background: linear-gradient(135deg, rgba(230,57,70,0.15), rgba(230,57,70,0.05)); color: #c0202f;">L</div></div></div>
+          <div class="name">Louay</div>
+          <div class="handle">@louay</div>
+          <div class="milestone" style="color: #e63946;">HOT STREAK</div>
+          <div class="tagline">Can't stop, won't stop.</div>
+          <div class="card-footer"><span class="f-brand">MyFootball</span><span class="f-date">30.03.26</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+</body>
+</html>
