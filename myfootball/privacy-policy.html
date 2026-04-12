@@ -125,7 +125,7 @@
     <div class="container">
         <div class="badge">Legal</div>
         <h1>Privacy Policy</h1>
-        <p class="effective">Effective date: 19 March 2026 &middot; Last updated: 27 March 2026</p>
+        <p class="effective">Effective date: 19 March 2026 &middot; Last updated: 12 April 2026</p>
 
         <p>MyFootball ("the App", "we", "us", "our") is operated by LouayLabs. This Privacy Policy explains what personal data we collect, why we collect it, how we use it, and your rights regarding that data.</p>
         <p>By creating an account, you acknowledge that you have read and understood this policy.</p>
@@ -145,6 +145,7 @@
                 <tr><td>First &amp; last name</td><td>Account identity</td><td>Yes</td></tr>
                 <tr><td>Display name</td><td>How other users see you in the app</td><td>Yes</td></tr>
                 <tr><td>Date of birth</td><td>Age verification (must be 13+)</td><td>Yes</td></tr>
+                <tr><td>Profile photo</td><td>Optional avatar displayed to other users</td><td>No</td></tr>
                 <tr><td>Sex</td><td>Optional profile field</td><td>No</td></tr>
                 <tr><td>Bio</td><td>Optional profile description</td><td>No</td></tr>
             </tbody>
@@ -161,6 +162,8 @@
             <li><strong>Chat messages</strong> — messages you send in match and squad group chats are stored so other participants can view them</li>
             <li><strong>Squad data</strong> — squads you create or join, squad membership, invite codes, and squad-level statistics</li>
             <li><strong>Dummy profiles</strong> — if you are a match admin, you may create placeholder player profiles (display name only) to represent players who do not have an account. These are linked to your account.</li>
+            <li><strong>Block data</strong> — if you block another user, we record the block relationship so the App can enforce it across all features</li>
+            <li><strong>Reports</strong> — if you report a user or content, we store the report details (reason, category, and associated content) for moderation purposes</li>
         </ul>
 
         <h3>1.3 Push Notification Data</h3>
@@ -174,7 +177,7 @@
             <ul style="margin-bottom: 0;">
                 <li>❌ Device GPS/location tracking</li>
                 <li>❌ Device identifiers (IDFA, IDFV)</li>
-                <li>❌ Contacts, photos, or camera data</li>
+                <li>❌ Contacts or address book data</li>
                 <li>❌ Analytics or crash reporting</li>
                 <li>❌ Advertising data</li>
                 <li>❌ Health or fitness data</li>
@@ -190,19 +193,29 @@
             <li><strong>Core features</strong> — organising matches, managing teams, inviting friends, generating post-match statistics, squad management, and group chat</li>
             <li><strong>Communication</strong> — sending verification emails, in-app notifications, and push notifications about match activity, chat messages, friend requests, and squad events</li>
             <li><strong>Age verification</strong> — ensuring users meet the minimum age requirement of 13 years</li>
+            <li><strong>Safety &amp; moderation</strong> — processing block and report actions to protect users from abuse, harassment, or inappropriate content</li>
         </ul>
         <p>We do <strong>not</strong> use your data for advertising, profiling, automated decision-making, or selling to third parties.</p>
 
         <h2>3. What Other Users Can See</h2>
         <p>Other authenticated users of the App can see:</p>
         <ul>
-            <li>Your <strong>display name</strong>, <strong>username</strong>, and <strong>bio</strong></li>
+            <li>Your <strong>display name</strong>, <strong>username</strong>, <strong>profile photo</strong>, and <strong>bio</strong></li>
             <li>Your <strong>friendship status</strong> relative to them</li>
             <li>Within shared matches: your <strong>team assignment</strong>, <strong>position</strong>, <strong>ratings</strong>, and <strong>awards</strong></li>
             <li>Within shared matches and squads: your <strong>chat messages</strong> sent to group chats</li>
             <li>Within shared squads: your <strong>squad membership</strong> and <strong>squad statistics</strong></li>
         </ul>
         <p>Other users <strong>cannot</strong> see your email address, password, date of birth, sex, first/last name, or saved locations.</p>
+
+        <h3>3.1 Blocked Users</h3>
+        <p>When you block a user (or they block you), visibility is reduced across the App:</p>
+        <ul>
+            <li>Blocked users will not appear in your friends list, search results, or friend suggestions</li>
+            <li>Blocked users cannot send you friend requests, match invites, or chat messages</li>
+            <li>In shared matches and squads, blocked users' profile photos are hidden (replaced with a generic placeholder) and interaction with their profiles is disabled</li>
+            <li>Your ratings and post-match reports will not affect blocked users' statistics, and vice versa</li>
+        </ul>
 
         <h2>4. Data Storage &amp; Security</h2>
         <p>Your data is stored on <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a>, a cloud database platform built on PostgreSQL. Supabase provides:</p>
@@ -221,6 +234,7 @@
             <tbody>
                 <tr><td>Supabase</td><td>Authentication, database, backend</td><td>All app data (encrypted in transit and at rest)</td></tr>
                 <tr><td>Apple Push Notification service (APNs)</td><td>Delivering push notifications to your device</td><td>Device token (not linked to your Apple ID)</td></tr>
+                <tr><td>Apple Sign in with Apple</td><td>Optional account authentication</td><td>User identifier and, if consented, name and email (Apple may provide a private relay email)</td></tr>
                 <tr><td>Apple MapKit</td><td>Venue search when setting match locations</td><td>Search queries only (no personal data)</td></tr>
             </tbody>
         </table>
@@ -229,7 +243,8 @@
         <h2>6. Data Retention</h2>
         <ul>
             <li><strong>Active account</strong> — your data is retained for as long as your account exists</li>
-            <li><strong>Account deletion</strong> — when you delete your account, all your data is permanently removed, including: your profile, match participation records, friendships, saved locations, match history, statistics, notifications, reports, chat messages, squad memberships, dummy profiles you created, and push notification tokens. This is irreversible.</li>
+            <li><strong>Account deletion</strong> — when you delete your account, all your data is permanently removed, including: your profile, profile photo, match participation records, friendships, blocks, saved locations, match history, statistics, notifications, chat messages, squad memberships, dummy profiles you created, and push notification tokens. This is irreversible.</li>
+            <li><strong>Reports</strong> — reports you have submitted may be retained after account deletion for safety and moderation purposes, but will be anonymised (no longer linked to your profile).</li>
         </ul>
 
         <h2>7. Your Rights</h2>
